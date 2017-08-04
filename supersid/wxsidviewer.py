@@ -15,7 +15,7 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
-from wx.lib.pubsub import Publisher
+from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
 from config import FILTERED, RAW
@@ -97,7 +97,7 @@ class wxSidViewer(wx.Frame):
         self.Show()
 
         # create a pubsub receiver for refresh after data capture / ref. link on threads
-        Publisher().subscribe(self.updateDisplay, "update")
+        Publisher.subscribe(self.updateDisplay, "update")
 
 
     def run(self):
@@ -122,7 +122,7 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            wx.CallAfter(Publisher().sendMessage, "update", message)
+            wx.CallAfter(Publisher.sendMessage, "update", message)
         else:
             self.status_bar.SetStatusText(message,field)
 
