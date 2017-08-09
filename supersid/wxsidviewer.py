@@ -146,10 +146,24 @@ class wxSidViewer(wx.Frame):
     def on_plot(self, event):
         """Save current buffers (raw) and display the data using supersid_plot.
         Using a separate process to prevent interference with data capture"""
-        filenames = self.controller.save_current_buffers(log_format = 'supersid_format')
-        print("plotting", filenames)
-        SSP.do_main(filenames)
-        
+        #filenames = self.controller.save_current_buffers(log_format = 'supersid_format')
+        #print("plotting", filenames)
+        #SSP.do_main(filenames)
+        """Select multiple files and call the supersid_plot module for display"""
+        filedialog = wx.FileDialog(self, message = 'Choose files to plot',
+                                   defaultDir = self.controller.config.data_path,
+                                   defaultFile = '',
+                                   wildcard = 'Supported filetypes (*.csv) |*.csv',
+                                   style = wx.FD_OPEN |wx.FD_MULTIPLE) #wx.OPEN lang before
+
+        if filedialog.ShowModal() == wx.ID_OK:         
+            filelist = ""
+            for u_filename in filedialog.GetFilenames():
+                filelist = str(filelist + "../Data/" + str(u_filename) + ",")
+            filelist = filelist.rstrip(',') # remove last comma
+
+            ssp = SSP.SUPERSID_PLOT()
+            ssp.plot_filelist(filelist)
     def on_plot_files(self, event):
         """Select multiple files and call the supersid_plot module for display"""
         filedialog = wx.FileDialog(self, message = 'Choose files to plot',
