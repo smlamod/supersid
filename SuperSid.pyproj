@@ -22,6 +22,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Config\ftp_cmds.TXT" />
+    <Content Include="Config\supersid.cfg" />
+    <Content Include="Config\supersid.text.cfg" />
+    <Content Include="Config\supersid.tk.cfg" />
+    <Content Include="Config\supersid.wx.cfg" />
     <Content Include="supersid\supersid_icon.png" />
   </ItemGroup>
   <ItemGroup>
