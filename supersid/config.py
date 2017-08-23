@@ -23,13 +23,16 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-# constant for log_type
+# constant for log_type  
 FILTERED, RAW = 'filtered', 'raw'
 # constant for station parameters
 CALL_SIGN, FREQUENCY, COLOR = 'call_sign', 'frequency', 'color'
 # constant for log_format
 SID_FORMAT, SUPERSID_FORMAT = 'sid_format', 'supersid_format'
 SUPERSID_EXTENDED, BOTH_EXTENDED = 'supersid_extended', 'both_extended' # with 5 decimals timestamp
+
+# @s The config class utilizes the configparser library to parse contents of the config file
+
 
 class Config(dict):
     """Dictionary containing the key/values pair read from a .cfg file"""
@@ -59,6 +62,11 @@ class Config(dict):
             self.config_ok = False
             self.config_err = "Cannot find configuration file: " + filename
             return
+
+        # @s sections is of type dictionary
+        # defined as { 'Key' : 'Value' }
+        # its Keys are defined by brackets in the cfg file e.g. [PARAMETERS]
+        # the values of its Keys are tuples inside of tuples (tuples are structs in c++/ IEnumerable in c#)
 
         # each section (dico entry) matches a list of parameters
         # each parameter has a key description, a type for cast, a default value or None if mandatory

@@ -38,6 +38,8 @@ except ImportError:
     wx_imported = False
 
 
+    # @s SuperSid() is startup class
+    # it first looks for the supersid.cfg file through the config class
 
 class SuperSID():
     '''
@@ -51,7 +53,7 @@ class SuperSID():
         self.timer = None
         self.sampler = None
         self.viewer = None
-
+        
         # Read Config file here
         print("Reading supersid.cfg ...", end='')
         # this script accepts a .cfg file as optional argument else we default

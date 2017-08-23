@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SuperSid", "SuperSid.pyproj", "{858C8079-C1C7-4FF7-A070-7A8BFCCA2CF1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{858C8079-C1C7-4FF7-A070-7A8BFCCA2CF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{858C8079-C1C7-4FF7-A070-7A8BFCCA2CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62337C32-D560-48D0-9979-CCA74A436B5D}
+	EndGlobalSection
+EndGlobal
