@@ -39,7 +39,8 @@ except ImportError:
 
 
     # @s SuperSid() is startup class
-    # it first looks for the supersid.cfg file through the config class
+    # Config Class is used to Parse the cfg file
+    # Loggger Class 
 
 class SuperSID():
     '''

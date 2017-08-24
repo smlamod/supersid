@@ -76,7 +76,7 @@ class Config(dict):
                                     ('data_path', str, ""),             # new: to override DATA_PATH_NAME by user
                                     ('log_format', str, SID_FORMAT),    # sid_format (default), supersid_format
                                     ('mode', str, 'Standalone'),        # Server, Client, Standalone (default)
-                                    ('viewer', str, 'tk'),              # text, wx, tk (default)
+                                    ('viewer', str, 'wx'),              # text, wx, tk @s wx is now default
                                     ('bema_wing', int, 6),              # beta_wing for sidfile.filter_buffer()
                                     # mandatory entries
                                     ('site_name', str, None),
@@ -119,11 +119,18 @@ class Config(dict):
                     }
 
         self.sectionfound = set()
+        
+        # @s iterate sections (key) and fields (value) in the sections dictionary
         for section, fields in sections.items():
+            
+            # @s iterate the key, type and default values of tuple of fields
             # go thru all the current section's fields
             for pkey, pcast, pdefault in fields:
                 try:
+
+                    # @s config_parser.get() method fetches the value inside the cfg file given the section and key
                     self[pkey] = pcast(config_parser.get(section, pkey))
+                
                 except ValueError:
                     self.config_ok = False
                     self.config_err = "'%s' is not of the type %s in 'supersid.cfg'. Please check." % (pkey, pcast)
@@ -152,7 +159,10 @@ class Config(dict):
             tmpDict = {}
             try:
                 for parameter in (CALL_SIGN, FREQUENCY, COLOR):
+
+                    # @s this procedure now fetches the call sign (NAA, NWC) given the station (section)
                     tmpDict[parameter] = config_parser.get(section, parameter)
+
                 self.stations.append(tmpDict)
             except ConfigParser.NoSectionError:
                 self.config_ok = False
@@ -171,12 +181,14 @@ class Config(dict):
         Extend the keys with some other values for easier access."""
         if not self.config_ok: return
 
+        # @s To check if the section [PARAMETERS] exist in the cfg file
         for mandatory_section in ('PARAMETERS',):
             if mandatory_section not in self.sectionfound:
                 self.config_ok = False
                 self.config_err = mandatory_section + "section is mandatory but missing from the .cfg file."
                 return
 
+        # @s To check if the parameter 'number_of_stations' does not match the number of stations found in the file
         # sanity check: as many Stations were read as announced by 'number_of_stations' (now section independent)
         if self['number_of_stations'] != len(self.stations):
             self.config_ok = False
@@ -194,6 +206,7 @@ class Config(dict):
             self.config_err = "'log_type' must be either 'filtered' or 'raw' in supersid.cfg. Please check."
             return
 
+        # @s FOR REVISION -- new version should save every 5 seconds now to make it realtime
         # 'hourly_save' must be UPPER CASE
         self['hourly_save'] = self['hourly_save'].upper()
         if self['hourly_save'] not in ('YES', 'NO'):
