@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\Config",
+    "\\docs",
     "\\supersid"
   ],
-  "SelectedNode": "\\Config\\supersid.cfg",
+  "SelectedNode": "\\supersid\\config.py",
   "PreviewInSolutionExplorer": false
 }
