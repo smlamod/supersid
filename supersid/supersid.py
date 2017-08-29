@@ -86,7 +86,7 @@ class SuperSID():
             # Lighter text version a.k.a. "console mode"
             self.viewer = textSidViewer(self)
         else:
-            print("ERROR: Unknown viewer", sid.config['viewer'])
+            print("ERROR: Unknown viewer", self.config['viewer'])
             exit(2)
 
         # Assign desired psd function for calculation after capture
