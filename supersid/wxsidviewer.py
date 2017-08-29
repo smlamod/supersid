@@ -10,6 +10,7 @@ Each Viewer must implement:
 - status_display(): display a message in a status bar or equivalent
 """
 from __future__ import print_function
+
 import matplotlib
 #matplotlib.use('WXAgg') # select back-end before pylab
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
@@ -18,8 +19,17 @@ import wx
 from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
-from config import FILTERED, RAW
+from config import FILTERED, RAW, CALL_SIGN, FREQUENCY #A added CALL_SIGN and FREQUENCY
+class Car:
+    """"""
 
+    #----------------------------------------------------------------------
+    def __init__(self, id, model, make, year):
+        """Constructor"""
+        self.id = id
+        self.model = model
+        self.make = make
+        self.year = year  
 
 class wxSidViewer(wx.Frame):
     '''                  
@@ -77,6 +87,22 @@ class wxSidViewer(wx.Frame):
         psd_sizer = wx.BoxSizer(wx.VERTICAL)
         psd_panel.SetSizer(psd_sizer)
 
+        #A Combobox for Station Selection
+       
+        self.label = wx.StaticText(psd_panel, label="Stations", style=wx.ALIGN_CENTER)
+        psd_sizer.Add(self.label, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        selection = self.controller.logger.sid_file.stations
+        #selection = map(str, self.controller.config['call_sign'].split(','))
+        stationselect = ["NWC","JJI","VTX4", "VTX1", "FTA", "NML"] 
+        self.combobox = wx.ComboBox(psd_panel, choices=selection, style=wx.CB_READONLY)
+        psd_sizer.Add(self.combobox,1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        psd_sizer.AddStretchSpacer()
+        self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
+
+        self.Center()
+        self.Show()
+
         # FigureCanvas    
         psd_figure = Figure(facecolor='beige') # 'bisque' 'antiquewhite' 'FFE4C4' 'F5F5DC' 'grey'
         self.canvas = FigureCanvas(psd_panel, -1, psd_figure)
@@ -98,7 +124,10 @@ class wxSidViewer(wx.Frame):
 
         # create a pubsub receiver for refresh after data capture / ref. link on threads
         Publisher.subscribe(self.updateDisplay, "update")
-
+    
+    def OnCombo(self,event):
+        #A happens when a station is selected
+        self.label.SetLabel("You selected "+self.combobox.GetValue()+" from Combobox") 
 
     def run(self):
         """Main loop for the application"""
@@ -154,7 +183,7 @@ class wxSidViewer(wx.Frame):
                                    defaultDir = self.controller.config.data_path,
                                    defaultFile = '',
                                    wildcard = 'Supported filetypes (*.csv) |*.csv',
-                                   style = wx.FD_OPEN |wx.FD_MULTIPLE) #wx.OPEN lang before
+                                   style = wx.FD_OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
 
         if filedialog.ShowModal() == wx.ID_OK:         
             filelist = ""
@@ -170,7 +199,7 @@ class wxSidViewer(wx.Frame):
                                    defaultDir = self.controller.config.data_path,
                                    defaultFile = '',
                                    wildcard = 'Supported filetypes (*.csv) |*.csv',
-                                   style = wx.OPEN |wx.FD_MULTIPLE)
+                                   style = wx.OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
 
         if filedialog.ShowModal() == wx.ID_OK:         
             filelist = ""
