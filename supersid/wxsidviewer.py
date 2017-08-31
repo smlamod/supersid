@@ -105,8 +105,12 @@ class wxSidViewer(wx.Frame):
 
         # FigureCanvas    
         psd_figure = Figure(facecolor='beige') # 'bisque' 'antiquewhite' 'FFE4C4' 'F5F5DC' 'grey'
+        psd_axes = psd_figure.add_subplot(111)
+
         self.canvas = FigureCanvas(psd_panel, -1, psd_figure)
         self.canvas.mpl_connect('button_press_event', self.on_click) # MPL call back
+        #A to hide canvas
+        #A self.canvas.Show(False)
 
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
