@@ -93,7 +93,7 @@ class wxSidViewer(wx.Frame):
         psd_sizer.Add(self.label, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
         selection = self.controller.logger.sid_file.stations
         #selection = map(str, self.controller.config['call_sign'].split(','))
-        stationselect = ["NWC","JJI","VTX4", "VTX1", "FTA", "NML"] 
+        #stationselect = ["NWC","JJI","VTX4", "VTX1", "FTA", "NML"] 
         self.combobox = wx.ComboBox(psd_panel, choices=selection, style=wx.CB_READONLY)
         psd_sizer.Add(self.combobox,1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
@@ -151,7 +151,8 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            wx.CallAfter(Publisher.sendMessage, "update", message)
+            #wx.CallAfter(Publisher.sendMessage, "update", message)
+            wx.CallAfter(Publisher.sendMessage, message)
         else:
             self.status_bar.SetStatusText(message,field)
 

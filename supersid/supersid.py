@@ -162,6 +162,7 @@ class SuperSID():
             self.logger.sid_file.timestamp[current_index] = utc_now
 
         # end of this thread/need to handle to View to display captured data & message
+        # print(data[19800])
         self.viewer.status_display(message, level=2)
 
     def save_current_buffers(self, filename='', log_type='raw', log_format = 'both'):

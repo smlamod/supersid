@@ -121,7 +121,7 @@ try:
                                           channels = 1,
                                           rate = self.audio_sampling_rate,
                                           input = True,
-                                          frames_per_buffer = self.CHUNK)
+                                          frames_per_buffer = self.audio_sampling_rate) #@S frames_per_buffer = self.CHUNK
             self.name = "pyaudio sound card capture"
 
         def capture_1sec(self):
@@ -134,7 +134,7 @@ try:
             expected_number_of_bytes = 2 * self.audio_sampling_rate * secs #int(self.audio_sampling_rate / self.CHUNK * secs)
             while len(frames) < expected_number_of_bytes:
                 try:
-                    data = self.pa_stream.read(self.CHUNK)
+                    data = self.pa_stream.read(self.audio_sampling_rate) # self.CHUNK
                     frames.extend(data)
                     #print(len(data), len(frames))
                 except IOError as io:
