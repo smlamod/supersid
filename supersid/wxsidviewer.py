@@ -160,13 +160,14 @@ class wxSidViewer(wx.Frame):
         else:
             self.status_bar.SetStatusText(message,field)
 
-    def on_close(self, event):
+     def on_close(self, event):
         """Requested to close by the user"""
-        self.controller.on_close()
+        self.on_exit(True) ##A
+        #self.controller.on_close()  ##A ~ calls itself? but exits also. used the on_exit instead for message dialog first
 
     def close(self):
         """Requested to close by the controller"""
-        self.app.Exit()
+        #self.app.Exit()   ##A ~ commented because 'App' object has no attribute 'Exit'
         self.Destroy()
 
     def on_exit(self, event):
