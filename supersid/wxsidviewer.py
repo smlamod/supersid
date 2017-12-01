@@ -160,7 +160,7 @@ class wxSidViewer(wx.Frame):
         else:
             self.status_bar.SetStatusText(message,field)
 
-     def on_close(self, event):
+    def on_close(self, event):
         """Requested to close by the user"""
         self.on_exit(True) ##A
         #self.controller.on_close()  ##A ~ calls itself? but exits also. used the on_exit instead for message dialog first
@@ -176,7 +176,8 @@ class wxSidViewer(wx.Frame):
                                'Are you sure to quit supersid?', 'Please Confirm',
                                wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
         if dlg.ShowModal() == wx.ID_YES:
-            self.Close(True)
+            #self.Close(True)   ##A 
+            self.Destroy()      ##A
 
     def on_plot(self, event):
         """Save current buffers (raw) and display the data using supersid_plot.
