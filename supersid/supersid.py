@@ -29,6 +29,7 @@ from config import Config
 from logger import Logger
 from textsidviewer import textSidViewer
 from tksidviewer import tkSidViewer
+from qdc2 import Qdc2 # @a
 # special case: 'wx' module might not be installed (text mode only) or even available (python 3)
 try:
     from wxsidviewer import wxSidViewer
@@ -212,6 +213,27 @@ which are caused by a blast of intense X-ray radiation when there is a Solar Fla
             "\n\nVisit http://solar-center.stanford.edu/SID/sidmonitor/ for more information."
         return msg
 
+    # @a -------------------------------------------------------------------------------
+    # FOR QDC Creation
+    # @a -------------------------------------------------------------------------------
+
+    def create_qdc(self):
+        self.qdc2 = Qdc2(self)
+        
+
+        #filenames = []
+        #fnames = self.logger.log_sid_format(self.config.stations, '')
+        #filenames += fnames
+
+        #return filenames
+        #if log_format.startswith('both') or log_format.startswith('sid'):
+        #    fnames = self.logger.log_sid_format(self.config.stations, '', log_type=log_type, extended=log_format.endswith('extended')) # filename is '' to ensure one file per station
+        #    filenames += fnames
+        #if log_format.startswith('both') or log_format.startswith('supersid'):
+        #    fnames = self.logger.log_supersid_format(self.config.stations, filename, log_type=log_type, extended=log_format.endswith('extended'))
+        #    filenames += fnames
+        #return filenames
+
 
 #-------------------------------------------------------------------------------
 def exist_file(x):
@@ -232,6 +254,4 @@ if __name__ == '__main__':
     sid = SuperSID(config_file=args.config_file, read_file=args.filename)
     sid.run()
     sid.close()
-
-
 

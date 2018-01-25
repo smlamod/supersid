@@ -16,6 +16,7 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
+import wx.lib.agw.aui as Aui
 from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
@@ -63,6 +64,7 @@ class wxSidViewer(wx.Frame):
         save_buffers_menu = menu_item_file.Append(wx.NewId(), '&Save Raw Buffers\tCtrl+B', 'Save Raw Buffers')
         save_filtered_menu = menu_item_file.Append(wx.NewId(),'&Save Filtered Buffers\tCtrl+F', 'Save Filtered Buffers')
         exit_menu = menu_item_file.Append(wx.NewId(), '&Quit\tCtrl+Q', 'Quit Super SID')
+        qdc_menu = menu_item_file.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
 
         menu_item_plot = wx.Menu()
         plot_menu = menu_item_plot.Append(wx.NewId(), '&Plot\tCtrl+P', 'Plot data')
@@ -81,40 +83,87 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_plot, plot_menu)
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
+        self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
 
-        # Frame   
-        psd_panel = wx.Panel(self, -1)   
-        psd_sizer = wx.BoxSizer(wx.VERTICAL)
-        psd_panel.SetSizer(psd_sizer)
-
-        #A Combobox for Station Selection
-       
-        self.label = wx.StaticText(psd_panel, label="Stations", style=wx.ALIGN_CENTER)
-        psd_sizer.Add(self.label, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        # Frame 
+        frameSizer = wx.BoxSizer(wx.VERTICAL)
+        
+        #frameSizer.SetSizer(frameSizer)
+     
+               
+        # @a Combobox for Station Selection
+        self.label = wx.StaticText(self, label="Stations") #, style=wx.ALIGN_CENTER)
+        frameSizer.Add(self.label, 0, wx.ALL, 5)
         selection = self.controller.logger.sid_file.stations
         #selection = map(str, self.controller.config['call_sign'].split(','))
         #stationselect = ["NWC","JJI","VTX4", "VTX1", "FTA", "NML"] 
-        self.combobox = wx.ComboBox(psd_panel, choices=selection, style=wx.CB_READONLY)
-        psd_sizer.Add(self.combobox,1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        self.combobox = wx.ComboBox(self, choices=selection, style=wx.CB_READONLY)
+        frameSizer.Add(self.combobox, 0, wx.ALL, 5)
 
-        psd_sizer.AddStretchSpacer()
+        #frameSizer.AddStretchSpacer()
         self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
 
-        self.Center()
-        self.Show()
+        #self.Center(wx.BOTH)
+       # self.Show()
 
-        # FigureCanvas    
+        
+        # @a auinotebook 012518       
+        nbstyle = Aui.AUI_NB_DEFAULT_STYLE
+        nbstyle &= ~(Aui.AUI_NB_CLOSE_ON_ACTIVE_TAB)
+        auiNotebook = Aui.AuiNotebook(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, agwStyle=nbstyle)
+        
+        # @a Add 2 pages to the wxAuinotebook widget
+        # @a First Page
+        tab_psd_panel = wx.Panel(auiNotebook)    
+        tab_psd_panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INFOBK))
+        auiNotebook.AddPage(tab_psd_panel, "Spectrum", True, wx.NullBitmap)
+        psd_sizer = wx.BoxSizer(wx.VERTICAL)
+        tab_psd_panel.SetSizer(psd_sizer) 
+
+        # @a for debugging purposes
+        #statictext = wx.StaticText(tab_psd_panel, label="This tab shows the psd graph")
+        #psd_sizer.Add(statictext, 0, wx.ALL, 5)
+
+        # @a Second Page
+        tab_Rtsid = wx.Panel(auiNotebook)
+        tab_Rtsid.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INFOBK))
+        auiNotebook.AddPage(tab_Rtsid, "Realtime SID", False, wx.NullBitmap)
+        rtsid_sizer = wx.BoxSizer(wx.VERTICAL)
+        tab_Rtsid.SetSizer(rtsid_sizer)
+
+        
+        # @a Add the notebook in frameSizer      
+        frameSizer.Add(auiNotebook, 1, wx.EXPAND | wx.ALL, 5)
+        self.SetSizer(frameSizer)
+        self.Layout()
+        self.Centre(wx.BOTH)
+        
+        # @a changes below to accomodate for variables psd_panel -> tab_psd_panel 01252018
+
+        ## FigureCanvas for Spectrum Page    
         psd_figure = Figure(facecolor='beige') # 'bisque' 'antiquewhite' 'FFE4C4' 'F5F5DC' 'grey'
         psd_axes = psd_figure.add_subplot(111)
 
-        self.canvas = FigureCanvas(psd_panel, -1, psd_figure)
+        self.canvas = FigureCanvas(tab_psd_panel, -1, psd_figure)
         self.canvas.mpl_connect('button_press_event', self.on_click) # MPL call back
-        #AA to hide canvas
-        #AA self.canvas.Show(False)
+        # @a to hide canvas
+        # @a self.canvas.Show(False)
 
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
         self.axes.hold(False)
+        
+        ## FigureCanvas for RealTime SID page
+        rtsid_figure = Figure(facecolor='beige')
+        rtsid_axes = rtsid_figure.add_subplot(111)
+
+        self.canvas2 = FigureCanvas(tab_Rtsid, -1, rtsid_figure)
+        self.canvas2.mpl_connect('button_press_event', self.on_click) # MPL call back
+
+        rtsid_sizer.Add(self.canvas2, 1, wx.EXPAND)
+        # figure for realtimeplots
+        #self.axes = rtsid_figure.add_subplot(111)
+        #self.axes.hold(False)
 
         # StatusBar
         self.status_bar = self.CreateStatusBar()
@@ -122,7 +171,7 @@ class wxSidViewer(wx.Frame):
         
         # Default View
         self.SetMinSize((600,600))
-        psd_sizer.SetItemMinSize(psd_panel,1000,600)
+        psd_sizer.SetItemMinSize(tab_psd_panel,1000,600)
         self.Center(True)
         self.Show()
 
@@ -263,3 +312,6 @@ class wxSidViewer(wx.Frame):
         except wx.PyDeadObjectError:
             exit(3)
         return Pxx, freqs
+
+    def on_qdc(self, event):
+        self.controller.create_qdc()
