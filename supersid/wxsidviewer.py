@@ -12,7 +12,7 @@ Each Viewer must implement:
 from __future__ import print_function
 
 import matplotlib
-#matplotlib.use('WXAgg') # select back-end before pylab
+matplotlib.use('WXAgg') # select back-end before pylab
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
@@ -21,16 +21,6 @@ from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
 from config import FILTERED, RAW, CALL_SIGN, FREQUENCY #A added CALL_SIGN and FREQUENCY
-class Car:
-    """"""
-
-    #----------------------------------------------------------------------
-    def __init__(self, id, model, make, year):
-        """Constructor"""
-        self.id = id
-        self.model = model
-        self.make = make
-        self.year = year  
 
 class wxSidViewer(wx.Frame):
     '''                  
