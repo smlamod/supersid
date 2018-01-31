@@ -45,6 +45,7 @@ class wxSidViewer(wx.Frame):
         """
         matplotlib.use('WXAgg') # select back-end before pylab
         # the application MUST created first
+        #S causes the first error
         self.app = wx.App(redirect=False)
         #
         self.version = "1.3.1 20150421 (wx)"
