@@ -196,7 +196,7 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            wx.CallAfter(Publisher.sendMessage, 'Update', message)
+            wx.CallAfter(Publisher.sendMessage, 'Update', arg1 = message)
             #wx.CallAfter(Publisher.sendMessage, message)
         else:
             self.status_bar.SetStatusText(message,field)
