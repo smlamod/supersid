@@ -17,6 +17,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
 import wx.lib.agw.aui as Aui
+from wx.lib.pubsub import setupkwargs
 from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
@@ -195,8 +196,8 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            #wx.CallAfter(Publisher.sendMessage, "update", message)
-            wx.CallAfter(Publisher.sendMessage, message)
+            wx.CallAfter(Publisher.sendMessage, 'Update', message)
+            #wx.CallAfter(Publisher.sendMessage, message)
         else:
             self.status_bar.SetStatusText(message,field)
 
