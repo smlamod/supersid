@@ -168,7 +168,7 @@ class wxSidViewer(wx.Frame):
         self.Show()
 
         # create a pubsub receiver for refresh after data capture / ref. link on threads
-        Publisher.subscribe(self.updateDisplay, "update")
+        Publisher.subscribe(self.updateDisplay, 'Update')
     
     def OnCombo(self,event):
         #A happens when a station is selected

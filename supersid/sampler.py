@@ -37,12 +37,12 @@ try:
         def __init__(self, card, periodsize, audio_sampling_rate):
             self.FORMAT = alsaaudio.PCM_FORMAT_S16_LE
             self.audio_sampling_rate = audio_sampling_rate
-            #card = 'sysdefault:CARD=' + card  # to add in the .cfg file under [Linux] section
-            card_info = {}
-            for device_number, card_name in enumerate(alsaaudio.cards()):
-                card_info[card_name] = "hw:%s,0" % device_number
-            print(card_info[card])
-            self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, device=card_info[card])
+            card = 'sysdefault:CARD=' + card  # to add in the .cfg file under [Linux] section
+            #card_info = {}
+            #for device_number, card_name in enumerate(alsaaudio.cards()):
+            #    card_info[card_name] = "hw:%s,0" % device_number
+            #print(card_info[card])
+            self.inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL, card)
             self.inp.setchannels(1)
             self.inp.setrate(audio_sampling_rate)
             self.inp.setperiodsize(periodsize)
