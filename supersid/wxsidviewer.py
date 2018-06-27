@@ -38,9 +38,9 @@ class wxSidViewer(wx.Frame):
         # the application MUST created first
         #S causes the first error
         self.app = wx.App(redirect=False)
-        #
         self.version = "1.3.1 20150421 (wx)"
         self.controller = controller  # previously referred as 'parent'      
+        
         # Frame
         wx.Frame.__init__(self, None, -1, "supersid @ " + self.controller.config['site_name'], pos = (20, 20), size=(1000,400))     
         self.Bind(wx.EVT_CLOSE, self.on_close)
@@ -96,7 +96,7 @@ class wxSidViewer(wx.Frame):
         self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
 
         #self.Center(wx.BOTH)
-       # self.Show()
+        # self.Show()
 
         
         # @a auinotebook 012518       
@@ -196,7 +196,7 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            wx.CallAfter(Publisher.sendMessage, 'Update', arg1 = message)
+            wx.CallAfter(Publisher.sendMessage, 'update', arg1 = message)
             #wx.CallAfter(Publisher.sendMessage, message)
         else:
             self.status_bar.SetStatusText(message,field)

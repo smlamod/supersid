@@ -33,6 +33,7 @@ class tkSidViewer():
         self.controller = controller  # previously referred as 'parent'
         self.tk_root = tk.Tk()
         self.tk_root.title("supersid @ " + self.controller.config['site_name'])
+        self.tk_root.geometry('{}x{}'.format(1000, 550))
 
         # All Menus creation
         menubar = tk.Menu(self.tk_root)
