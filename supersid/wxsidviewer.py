@@ -8,6 +8,10 @@ Each Viewer must implement:
 - run(): main loop to get user input
 - close(): cleaning up
 - status_display(): display a message in a status bar or equivalent
+## wxviewer notebook
+wx.__version__ 2.8.12
+pub.version 1.1.2009
+use from wx.lib.pubsub import setuparg1
 """
 from __future__ import print_function
 
@@ -17,7 +21,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
 import wx.lib.agw.aui as Aui
-from wx.lib.pubsub import setupkwargs
+from wx.lib.pubsub import setuparg1
 from wx.lib.pubsub import pub as Publisher
 
 import supersid_plot as SSP
@@ -87,8 +91,6 @@ class wxSidViewer(wx.Frame):
         self.label = wx.StaticText(self, label="Stations") #, style=wx.ALIGN_CENTER)
         frameSizer.Add(self.label, 0, wx.ALL, 5)
         selection = self.controller.logger.sid_file.stations
-        #selection = map(str, self.controller.config['call_sign'].split(','))
-        #stationselect = ["NWC","JJI","VTX4", "VTX1", "FTA", "NML"] 
         self.combobox = wx.ComboBox(self, choices=selection, style=wx.CB_READONLY)
         frameSizer.Add(self.combobox, 0, wx.ALL, 5)
 
@@ -131,16 +133,15 @@ class wxSidViewer(wx.Frame):
         self.Centre(wx.BOTH)
         
         # @a changes below to accomodate for variables psd_panel -> tab_psd_panel 01252018
-
         ## FigureCanvas for Spectrum Page    
         psd_figure = Figure(facecolor='beige') # 'bisque' 'antiquewhite' 'FFE4C4' 'F5F5DC' 'grey'
         psd_axes = psd_figure.add_subplot(111)
-
+        
         self.canvas = FigureCanvas(tab_psd_panel, -1, psd_figure)
         self.canvas.mpl_connect('button_press_event', self.on_click) # MPL call back
+        
         # @a to hide canvas
         # @a self.canvas.Show(False)
-
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
         self.axes.hold(False)
@@ -148,12 +149,12 @@ class wxSidViewer(wx.Frame):
         ## FigureCanvas for RealTime SID page
         rtsid_figure = Figure(facecolor='beige')
         rtsid_axes = rtsid_figure.add_subplot(111)
-
         self.canvas2 = FigureCanvas(tab_Rtsid, -1, rtsid_figure)
         self.canvas2.mpl_connect('button_press_event', self.on_click) # MPL call back
 
         rtsid_sizer.Add(self.canvas2, 1, wx.EXPAND)
-        # figure for realtimeplots
+       
+        #figure for realtimeplots
         #self.axes = rtsid_figure.add_subplot(111)
         #self.axes.hold(False)
 
@@ -196,8 +197,7 @@ class wxSidViewer(wx.Frame):
         if level == 1:
             wx.CallAfter(self.status_display, message)
         elif level == 2:
-            wx.CallAfter(Publisher.sendMessage, 'update', arg1 = message)
-            #wx.CallAfter(Publisher.sendMessage, message)
+            wx.CallAfter(Publisher.sendMessage, 'Update', message)
         else:
             self.status_bar.SetStatusText(message,field)
 
