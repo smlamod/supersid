@@ -70,6 +70,7 @@ class tkSidViewer():
         self.axes = self.psd_figure.add_subplot(111)
         self.axes.hold(False)
 
+
         # StatusBar
         self.statusbar_txt = tk.StringVar()
         self.label=tk.Label(self.tk_root, bd=1, relief=tk.SUNKEN, anchor=tk.W,
@@ -106,6 +107,8 @@ class tkSidViewer():
         """redraw the graphic PSD plot if needed i.e.new data have been given to get_psd"""
         if self.need_refresh:
             try:
+                axes = self.psd_figure.gca()
+                axes.set_ylim([25,75])
                 self.canvas.draw()
                 self.need_refresh = False
             except IndexError as err_idx:

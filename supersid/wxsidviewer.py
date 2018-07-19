@@ -23,6 +23,8 @@ import wx
 import wx.lib.agw.aui as Aui
 from wx.lib.pubsub import setuparg1
 from wx.lib.pubsub import pub as Publisher
+from matplotlib.ticker import FuncFormatter as ff
+
 
 import supersid_plot as SSP
 from config import FILTERED, RAW, CALL_SIGN, FREQUENCY #A added CALL_SIGN and FREQUENCY
@@ -88,17 +90,18 @@ class wxSidViewer(wx.Frame):
      
                
         # @a Combobox for Station Selection
-        self.label = wx.StaticText(self, label="Stations") #, style=wx.ALIGN_CENTER)
+        self.label = wx.StaticText(self, label="Realtime at Station:") #, style=wx.ALIGN_CENTER)
         frameSizer.Add(self.label, 0, wx.ALL, 5)
         selection = self.controller.logger.sid_file.stations
         self.combobox = wx.ComboBox(self, choices=selection, style=wx.CB_READONLY)
+        self.combobox.Selection = 0
         frameSizer.Add(self.combobox, 0, wx.ALL, 5)
 
         #frameSizer.AddStretchSpacer()
         self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
 
         #self.Center(wx.BOTH)
-        # self.Show()
+        #self.Show()
 
         
         # @a auinotebook 012518       
@@ -125,7 +128,6 @@ class wxSidViewer(wx.Frame):
         rtsid_sizer = wx.BoxSizer(wx.VERTICAL)
         tab_Rtsid.SetSizer(rtsid_sizer)
 
-        
         # @a Add the notebook in frameSizer      
         frameSizer.Add(auiNotebook, 1, wx.EXPAND | wx.ALL, 5)
         self.SetSizer(frameSizer)
@@ -135,28 +137,30 @@ class wxSidViewer(wx.Frame):
         # @a changes below to accomodate for variables psd_panel -> tab_psd_panel 01252018
         ## FigureCanvas for Spectrum Page    
         psd_figure = Figure(facecolor='beige') # 'bisque' 'antiquewhite' 'FFE4C4' 'F5F5DC' 'grey'
-        psd_axes = psd_figure.add_subplot(111)
-        
         self.canvas = FigureCanvas(tab_psd_panel, -1, psd_figure)
         self.canvas.mpl_connect('button_press_event', self.on_click) # MPL call back
-        
-        # @a to hide canvas
-        # @a self.canvas.Show(False)
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
         self.axes.hold(False)
+        #self.axes.axvline(x=19800)
+        
         
         ## FigureCanvas for RealTime SID page
         rtsid_figure = Figure(facecolor='beige')
-        rtsid_axes = rtsid_figure.add_subplot(111)
         self.canvas2 = FigureCanvas(tab_Rtsid, -1, rtsid_figure)
-        self.canvas2.mpl_connect('button_press_event', self.on_click) # MPL call back
-
+        self.canvas2.mpl_connect('button_press_event', self.on_click) # MPL call back        
+        self.axes2 = rtsid_figure.add_subplot(111)
+        self.axes2.hold(False)    
         rtsid_sizer.Add(self.canvas2, 1, wx.EXPAND)
+
        
-        #figure for realtimeplots
-        #self.axes = rtsid_figure.add_subplot(111)
-        #self.axes.hold(False)
+        self.ssp2 = SSP.SUPERSID_PLOT()
+        self.axes2.xaxis.set_minor_locator(matplotlib.dates.HourLocator())
+        #self.cur_axes2.xaxis.set_major_locator(matplotlib.dates.DayLocator())
+        #self.cur_axes2.xaxis.set_major_formatter(ff(ssp2.m2yyyymmdd))
+        self.axes2.xaxis.set_minor_formatter(ff(self.ssp2.m2hm))
+        self.axes2.set_xlabel("UTC Time")
+
 
         # StatusBar
         self.status_bar = self.CreateStatusBar()
@@ -170,6 +174,7 @@ class wxSidViewer(wx.Frame):
 
         # create a pubsub receiver for refresh after data capture / ref. link on threads
         Publisher.subscribe(self.updateDisplay, 'Update')
+
     
     def OnCombo(self,event):
         #A happens when a station is selected
@@ -184,8 +189,18 @@ class wxSidViewer(wx.Frame):
         Receives data from thread and updates the display (graph and statusbar)
         """
         try:
+            #self.axes2.xaxis.set_minor_locator(matplotlib.dates.HourLocator())
+            #self.axes2.xaxis.set_minor_formatter(ff(self.ssp2.m2hm))            
+            self.axes2.plot_date(self.controller.logger.sid_file.timestamp ,self.controller.logger.sid_file.data[self.combobox.GetSelection()],linestyle='-',marker='None')    
+            self.axes2.set_xlabel("UTC Time")
+            self.axes2.set_ylabel("Relative Strength")
+            self.canvas2.draw()            
+          
+            self.axes.axvline(self.controller.logger.sid_file.frequencies[self.combobox.GetSelection()],color='r',marker='x',linewidth=2)
             self.canvas.draw()
-            self.status_display(msg.data)
+
+
+            self.status_display(msg.data)            
         except:
             pass
         
@@ -301,6 +316,7 @@ class wxSidViewer(wx.Frame):
         """By calling 'psd' within axes, it both calculates and plots the spectrum"""
         try:
             Pxx, freqs = self.axes.psd(data, NFFT = NFFT, Fs = FS)
+            
         except wx.PyDeadObjectError:
             exit(3)
         return Pxx, freqs
