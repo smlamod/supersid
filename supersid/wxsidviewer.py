@@ -21,6 +21,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import wx
 import wx.lib.agw.aui as Aui
+import matplotlib.dates as mdates
 from wx.lib.pubsub import setuparg1
 from wx.lib.pubsub import pub as Publisher
 from matplotlib.ticker import FuncFormatter as ff
@@ -142,8 +143,7 @@ class wxSidViewer(wx.Frame):
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
         self.axes.hold(False)
-        #self.axes.axvline(x=19800)
-        
+        #self.axes.axvline(x=19800)        
         
         ## FigureCanvas for RealTime SID page
         rtsid_figure = Figure(facecolor='beige')
@@ -152,15 +152,6 @@ class wxSidViewer(wx.Frame):
         self.axes2 = rtsid_figure.add_subplot(111)
         self.axes2.hold(False)    
         rtsid_sizer.Add(self.canvas2, 1, wx.EXPAND)
-
-       
-        self.ssp2 = SSP.SUPERSID_PLOT()
-        self.axes2.xaxis.set_minor_locator(matplotlib.dates.HourLocator())
-        #self.cur_axes2.xaxis.set_major_locator(matplotlib.dates.DayLocator())
-        #self.cur_axes2.xaxis.set_major_formatter(ff(ssp2.m2yyyymmdd))
-        self.axes2.xaxis.set_minor_formatter(ff(self.ssp2.m2hm))
-        self.axes2.set_xlabel("UTC Time")
-
 
         # StatusBar
         self.status_bar = self.CreateStatusBar()
@@ -178,7 +169,8 @@ class wxSidViewer(wx.Frame):
     
     def OnCombo(self,event):
         #A happens when a station is selected
-        self.label.SetLabel("You selected "+self.combobox.GetValue()+" from Combobox") 
+        # self.label.SetLabel("You selected "+self.combobox.GetValue()+" from Combobox") 
+        self.canvasDraw()
 
     def run(self):
         """Main loop for the application"""
@@ -189,20 +181,32 @@ class wxSidViewer(wx.Frame):
         Receives data from thread and updates the display (graph and statusbar)
         """
         try:
-            #self.axes2.xaxis.set_minor_locator(matplotlib.dates.HourLocator())
-            #self.axes2.xaxis.set_minor_formatter(ff(self.ssp2.m2hm))            
-            self.axes2.plot_date(self.controller.logger.sid_file.timestamp ,self.controller.logger.sid_file.data[self.combobox.GetSelection()],linestyle='-',marker='None')    
-            self.axes2.set_xlabel("UTC Time")
-            self.axes2.set_ylabel("Relative Strength")
-            self.canvas2.draw()            
-          
-            self.axes.axvline(self.controller.logger.sid_file.frequencies[self.combobox.GetSelection()],color='r',marker='x',linewidth=2)
-            self.canvas.draw()
-
-
+            self.canvasDraw()
+            #Status Bar
             self.status_display(msg.data)            
         except:
             pass
+
+    def canvasDraw(self):
+        params = self.controller.logger.sid_file
+        select = self.combobox.GetSelection()
+        qdata = self.controller.qdc.qdcData
+        
+        #Quiet Day Curve
+        self.axes2.plot(params.timestamp,qdata[select],params.timestamp,params.data[select],linestyle='-',marker='None') 
+        #self.axes2.plot(params.timestamp,qdata[select],linestyle='-',marker='None') 
+
+        #Realtime Graph          
+        #self.axes2.plot(params.timestamp,params.data[select],linestyle='-',marker='None')
+        self.axes2.grid(b=True)
+        self.axes2.set_xlabel("UTC Time")
+        self.axes2.set_ylabel("Relative Strength")
+
+        self.canvas2.draw()            
+          
+        #Psd Graph
+        self.axes.axvline(params.frequencies[select],color='r',marker='x',linewidth=2)
+        self.canvas.draw()
         
 
     def get_axes(self):

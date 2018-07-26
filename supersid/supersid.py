@@ -29,6 +29,8 @@ from config import Config
 from logger import Logger
 from datetime import datetime
 
+from qdc import Qdc
+
     # @s SuperSid() is startup class
     # Config Class is used to Parse the cfg file
     # Loggger Class 
@@ -65,6 +67,11 @@ class SuperSID():
         self.logger = Logger(self, read_file)
         if 'utc_starttime' not in self.config:
             self.config['utc_starttime'] = self.logger.sid_file.sid_params["utc_starttime"]
+
+
+        #S Calculate Quiet Day curves - Will read applicable files to be averaged
+        self.qdc = Qdc(self)
+
 
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
@@ -231,6 +238,7 @@ if __name__ == '__main__':
     args, unk = parser.parse_known_args()
 
     sid = SuperSID(config_file=args.config_file, read_file=args.filename)
+    #sid = SuperSID("../Config/supersid.cfg", "../Data/MIT-PH_2018-07-24.csv")
     sid.run()
     sid.close()
 
