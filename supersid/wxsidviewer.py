@@ -242,10 +242,6 @@ class wxSidViewer(wx.Frame):
     def on_plot(self, event):
         """Save current buffers (raw) and display the data using supersid_plot.
         Using a separate process to prevent interference with data capture"""
-        #filenames = self.controller.save_current_buffers(log_format = 'supersid_format')
-        #print("plotting", filenames)
-        #SSP.do_main(filenames)
-        """Select multiple files and call the supersid_plot module for display"""
         filedialog = wx.FileDialog(self, message = 'Choose files to plot',
                                    defaultDir = self.controller.config.data_path,
                                    defaultFile = '',
@@ -260,6 +256,7 @@ class wxSidViewer(wx.Frame):
 
             ssp = SSP.SUPERSID_PLOT()
             ssp.plot_filelist(filelist)
+
     def on_plot_files(self, event):
         """Select multiple files and call the supersid_plot module for display"""
         filedialog = wx.FileDialog(self, message = 'Choose files to plot',
@@ -326,4 +323,17 @@ class wxSidViewer(wx.Frame):
         return Pxx, freqs
 
     def on_qdc(self, event):
-        self.controller.create_qdc()
+       """Select files and call QDC to create Quiet Day curve"""
+       filedialog = wx.FileDialog(self, message = 'Choose files compute qdc',
+                                   defaultDir = self.controller.config.data_path,
+                                   defaultFile = '',
+                                   wildcard = 'Supported filetypes (*.csv) |*.csv',
+                                   style = wx.OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
+
+       if filedialog.ShowModal() == wx.ID_OK:         
+            filelist = ""
+            for u_filename in filedialog.GetFilenames():
+                filelist = str(filelist + "../Data/" + str(u_filename) + ",")
+            filelist = filelist.rstrip(',') # remove last comma
+       
+       self.controller.qdc.load_pickedfiles(filelist)

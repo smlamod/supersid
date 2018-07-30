@@ -162,6 +162,10 @@ class SuperSID():
                     for log_format in self.config['log_format'].split(','):
                         self.save_current_buffers(log_type=self.config['log_type'], log_format=log_format)
                     self.clear_all_data_buffers()
+
+                    #S calculate new qdc curve
+                    self.qdc.load_files()
+
             # Save signal strengths into memory buffers ; prepare message for status bar
             message = self.timer.get_utc_now() + "  [%d]  " % current_index
             for station, strength in zip(self.config.stations, signal_strengths):

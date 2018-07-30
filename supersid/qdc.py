@@ -23,7 +23,39 @@ class Qdc():
         #self.sid_file = SidFile(sid_params = self.config)
         self._max_qdc = 3
         self._max_days = 30
+        self.load_files()
 
+    def load_pickedfiles(self, filelist):
+        """ Calculates QDC from given file list """
+        params = self.controller.logger.sid_file.sid_params
+        qdc_index = 0
+
+        if type(filelist) is str:
+            if filelist.find(',') >= 0:  # file1,file2,...,fileN given as script argument
+                filelist = filelist.split(",")
+            else:
+                filelist = (filelist, )
+
+        inData = [None] * len(filelist)
+
+        for sid_file in filelist:
+            try: 
+                with open(sid_file, "rt") as fin:
+                    lines = fin.readlines()
+            except IOError:
+                return False
+
+            inData[qdc_index] = numpy.loadtxt(lines, dtype=float, comments='#', delimiter=",").transpose()
+            inData[qdc_index][inData[qdc_index] == 0.0] = numpy.nan
+            print ("Reading {0} ".format(sid_file))
+            qdc_index += 1
+            
+        self.qdcData = numpy.nanmean(inData, axis=0)
+        print("QDC Loaded")
+        
+
+    def load_files(self):
+        """ Reads next available sidfile """
         params = self.controller.logger.sid_file.sid_params
         delta_day = 0
         qdc_index = 0
@@ -36,7 +68,7 @@ class Qdc():
             fstr = params.data_path + params['site_name'] + '{:_%Y-%m-%d.csv}'.format(d)
             try: 
                 with open(fstr, "rt") as fin:
-                    self.lines = fin.readlines()
+                    lines = fin.readlines()
             except IOError:                
                 #print ("Skip:", fstr)                
                 if delta_day > self._max_days:
@@ -45,19 +77,11 @@ class Qdc():
                     return
                 else:
                     continue
-            inData[qdc_index] = numpy.loadtxt(self.lines, dtype=float, comments='#', delimiter=",").transpose()
+            inData[qdc_index] = numpy.loadtxt(lines, dtype=float, comments='#', delimiter=",").transpose()
             inData[qdc_index][inData[qdc_index] == 0.0] = numpy.nan
-            print ("Read: {0} ".format(fstr))
+            print ("Reading {0} ".format(fstr))
             qdc_index += 1
                 
         self.qdcData = numpy.nanmean(inData, axis=0)
         print("QDC Loaded")
-
-    def qdc_format(self, stations, filename='', log_type=FILTERED, extended = False):
-        """ One file per station. """
-        filenames = []
-        for station in stations:       
-            my_filename = self.config.data_path + (filename or self.sid_file.get_sid_filename(station['call_sign']))
-            filenames.append(my_filename)
-            self.sid_file.write_data_sid(station, my_filename, log_type, extended=extended, bema_wing=self.config["bema_wing"])
-        return filenames
+        
