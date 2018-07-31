@@ -9,10 +9,7 @@ try:
 except NameError:
     pass    # already Python 3
 from time import gmtime, strftime
-
 from sidfile import SidFile
-from config import FILTERED, RAW, CALL_SIGN, FREQUENCY, SID_FORMAT, SUPERSID_FORMAT
-
 from datetime import datetime, timedelta
 import numpy
 

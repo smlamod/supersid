@@ -40,3 +40,4 @@ Data
 .idea
 *.bak
 /.vs/SuperSid2/v15/.suo
+/Config/supersid.cfg
