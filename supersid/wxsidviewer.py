@@ -63,7 +63,10 @@ class wxSidViewer(wx.Frame):
         save_buffers_menu = menu_item_file.Append(wx.NewId(), '&Save Raw Buffers\tCtrl+B', 'Save Raw Buffers')
         save_filtered_menu = menu_item_file.Append(wx.NewId(),'&Save Filtered Buffers\tCtrl+F', 'Save Filtered Buffers')
         exit_menu = menu_item_file.Append(wx.NewId(), '&Quit\tCtrl+Q', 'Quit Super SID')
-        qdc_menu = menu_item_file.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
+
+        menu_item_qdc = wx.Menu()
+        qdc_menu = menu_item_qdc.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
+        qdc_save_menu = menu_item_qdc.Append(wx.NewId(), '&Save QDC', 'Save QDC file') 
 
         menu_item_plot = wx.Menu()
         plot_menu = menu_item_plot.Append(wx.NewId(), '&Plot\tCtrl+P', 'Plot data')
@@ -75,6 +78,7 @@ class wxSidViewer(wx.Frame):
         menubar.Append(menu_item_file, '&File')
         menubar.Append(menu_item_plot, '&Plot')
         menubar.Append(menu_item_help, '&Help')
+        menubar.Append(menu_item_qdc, '&QDC')
         
         self.SetMenuBar(menubar)
         self.Bind(wx.EVT_MENU, self.on_save_buffers, save_buffers_menu)
@@ -83,6 +87,7 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
         self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
+        self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # S
 
         # Frame 
         frameSizer = wx.BoxSizer(wx.VERTICAL)
@@ -100,9 +105,6 @@ class wxSidViewer(wx.Frame):
 
         #frameSizer.AddStretchSpacer()
         self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
-
-        #self.Center(wx.BOTH)
-        #self.Show()
 
         
         # @a auinotebook 012518       
@@ -190,22 +192,23 @@ class wxSidViewer(wx.Frame):
     def canvasDraw(self):
         params = self.controller.logger.sid_file
         select = self.combobox.GetSelection()
-        qdata = self.controller.qdc.qdcData
+        qparams = self.controller.qdc
         
         #Quiet Day Curve
-        self.axes2.plot(params.timestamp,qdata[select],params.timestamp,params.data[select],linestyle='-',marker='None') 
-        #self.axes2.plot(params.timestamp,qdata[select],linestyle='-',marker='None') 
-
-        #Realtime Graph          
-        #self.axes2.plot(params.timestamp,params.data[select],linestyle='-',marker='None')
+        if qparams.is_ok :
+            #If QDC is calculated
+            self.axes2.plot(params.timestamp,qparams.qdcData[select],params.timestamp,params.data[select],linestyle='-',marker='None') 
+        else:
+            #else show realtime only
+            self.axes2.plot(params.timestamp,params.data[select],linestyle='-',marker='None') 
+        
         self.axes2.grid(b=True)
         self.axes2.set_xlabel("UTC Time")
         self.axes2.set_ylabel("Relative Strength")
-
         self.canvas2.draw()            
           
         #Psd Graph
-        self.axes.axvline(params.frequencies[select],color='r',marker='x',linewidth=2)
+        self.axes.axvline(params.frequencies[select],color='r',linewidth=1)
         self.canvas.draw()
         
 
@@ -337,3 +340,7 @@ class wxSidViewer(wx.Frame):
             filelist = filelist.rstrip(',') # remove last comma
        
        self.controller.qdc.load_pickedfiles(filelist)
+
+    def on_qdc_save(self):
+      """Saves current qdc data to disk """
+
