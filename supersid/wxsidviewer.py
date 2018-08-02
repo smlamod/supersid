@@ -284,7 +284,7 @@ class wxSidViewer(wx.Frame):
     
     def on_save_filtered(self, event):
         """Call the Controller for writing filtered data to file"""
-        self.controller.save_current_buffers('current_filtered.csv', FILTERED)
+        self.controller.save_current_buffers(log_type='filtered', log_format='both')
         
     def on_about(self, event):
         """Open an About message box"""
