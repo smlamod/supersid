@@ -284,7 +284,12 @@ class wxSidViewer(wx.Frame):
     
     def on_save_filtered(self, event):
         """Call the Controller for writing filtered data to file"""
-        self.controller.save_current_buffers(log_type='filtered', log_format='both')
+        saved_files = self.controller.save_current_buffers(log_type='filtered', log_format='both')
+        
+        
+        wx.MessageBox("Files saved\n" + "\n".join(saved_files),                 
+                      caption = 'supersid',
+                      style = wx.OK | wx.ICON_INFORMATION)
         
     def on_about(self, event):
         """Open an About message box"""
@@ -347,4 +352,7 @@ class wxSidViewer(wx.Frame):
       if dlg.ShowModal() == wx.ID_OK:       
             #print('Saving: %s\n' % dlg.GetValue())
             self.controller.qdc.write_qdc(dlg.GetValue())
+            wx.MessageBox("QDC saved\n %s" % dlg.GetValue(),                 
+                      caption = 'supersid',
+                      style = wx.OK | wx.ICON_INFORMATION)
       dlg.Destroy()
