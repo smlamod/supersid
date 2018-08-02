@@ -109,11 +109,11 @@ class SUPERSID_PLOT():
         #plt.axvspan(0.0, sun_rise, facecolor='blue', alpha=0.2)
         #plt.axvspan(sun_set, 24.0, facecolor='blue', alpha=0.2)
 
-        if type(filelist) is str:
-            if filelist.find(',') >= 0:  # file1,file2,...,fileN given as script argument
-                filelist = filelist.split(",")
-            else:
-                filelist = (filelist, )
+        #if type(filelist) is str:
+        #    if filelist.find(',') >= 0:  # file1,file2,...,fileN given as script argument
+        #        filelist = filelist.split(",")
+        #    else:
+        #        filelist = (filelist, )
         filenames = []
         # use glob for one or more files
         filenames.extend([a for a in itertools.chain.from_iterable(

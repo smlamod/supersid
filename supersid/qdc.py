@@ -18,7 +18,7 @@ class Qdc():
     def __init__(self, controller, read_file=None):
         self.controller = controller
         self.config = controller.config
-
+        self.data_path = '..\\aData\\'
         self.is_ok = False
         self._max_qdc = 3
         self._max_days = 30
@@ -34,17 +34,16 @@ class Qdc():
         inData = []
         inDays = []
 
-        if type(filelist) is str:
-            if filelist.find(',') >= 0:  # file1,file2,...,fileN given as script argument
-                filelist = filelist.split(",")
-            else:
-                filelist = (filelist, )        
+        #if type(filelist) is str:
+        #    if filelist.find(',') >= 0:  # file1,file2,...,fileN given as script argument
+        #        filelist = filelist.split(",")
+        #    else:
+        #        filelist = (filelist, )        
 
         for fstr in filelist:
             try: 
                 with open(fstr, "rt") as fin:
                     lines = fin.readlines()
-
                     if not self.is_ok_station(fstr,lines):
                         continue                       
                     inDays.append(self.parse_utcstart(lines))
@@ -75,14 +74,11 @@ class Qdc():
             d = datetime.utcnow() - timedelta(days=delta_day)
             fstr = params.data_path + params['site_name'] + '{:_%Y-%m-%d.csv}'.format(d)
             try: 
-                with open(fstr, "rt") as fin:
-                    
-                    lines = fin.readlines()                    
-
+                with open(fstr, "rt") as fin:                    
+                    lines = fin.readlines()                
                     if not self.is_ok_station(fstr,lines):
                         continue                       
                     inDays.append('{:%Y-%m-%d}'.format(d))
-
             except IOError:                
                 #print ("Skip:", fstr)                
                 if delta_day > self._max_days:
@@ -111,7 +107,7 @@ class Qdc():
     def is_ok_station(self,fstr,lines):
         """ Checks if read in sidfiles are valid """
 
-        sys.stdout.write ("Reading {0}  ".format(fstr),)
+        sys.stdout.write ("Reading {0}".format(fstr),)
         #Lines[13] has station list
         temp_station = lines[13]
         temp_station = temp_station.replace(" ", "")
@@ -119,18 +115,32 @@ class Qdc():
         temp_station = temp_station.split('=',1)[-1]
         #temp_station = temp_station.split(',')
         if temp_station != self.controller.config['stations']:
-            sys.stdout.write ("[BAD] inconsistent stations\n")
+            sys.stdout.write ("[\tBAD] inconsistent stations\n")
             return False         
         else:
-            sys.stdout.write ("[OK]\n")
+            sys.stdout.write ("\t[OK]\n")
             return True
 
     def get_avg(self,inData):
         """ Calculates the nanmean of read supersid file data """
         self.qdcData = numpy.nanmean(inData, axis=0)        
         self.is_ok = True
-        print("- QDC Loaded")       
+        print("- QDC Loaded")    
 
 
-    def write_qdc(self):
+    def write_qdc(self,filename):
         """ Writes computed QDC to disk """
+        try:
+            filename = self.data_path + filename
+            sys.stdout.write("Saving  %s" % filename,)
+            with open(filename,'wt') as fout:
+                print(self.controller.logger.sid_file.create_header(True,'filtered'),file=fout,end="")
+                print('# Days Averaged = ' + ','.join(self.qdays), file=fout, end="")
+                for row in numpy.transpose(self.qdcData):
+                    floats_as_strings = ["%.15f" % x for x in row]
+                    print(", ".join(floats_as_strings), file=fout)
+
+                sys.stdout.write("\t[OK]")
+        except IOError:
+            sys.stdout.write("[ERROR]")
+            return False

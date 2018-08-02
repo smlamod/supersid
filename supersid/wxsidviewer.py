@@ -54,7 +54,7 @@ class wxSidViewer(wx.Frame):
 
         # Icon
         try: 
-            self.SetIcon(wx.Icon("supersid_icon.png", wx.BITMAP_TYPE_PNG))
+            self.SetIcon(wx.Icon("./supersid_icon.png", wx.BITMAP_TYPE_PNG))
         finally:
             pass
 
@@ -87,7 +87,7 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
         self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
-        self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # S
+        self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
 
         # Frame 
         frameSizer = wx.BoxSizer(wx.VERTICAL)
@@ -252,13 +252,14 @@ class wxSidViewer(wx.Frame):
                                    style = wx.FD_OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
 
         if filedialog.ShowModal() == wx.ID_OK:         
-            filelist = ""
-            for u_filename in filedialog.GetFilenames():
-                filelist = str(filelist + "../Data/" + str(u_filename) + ",")
-            filelist = filelist.rstrip(',') # remove last comma
+            #filelist = ""
+            #for u_filename in filedialog.GetFilenames():
+            #    filelist = str(filelist + "../Data/" + str(u_filename) + ",")
+            #filelist = filelist.rstrip(',') # remove last comma
 
             ssp = SSP.SUPERSID_PLOT()
-            ssp.plot_filelist(filelist)
+            #ssp.plot_filelist(filelist)
+            ssp.plot_filelist(filedialog.GetPaths())
 
     def on_plot_files(self, event):
         """Select multiple files and call the supersid_plot module for display"""
@@ -333,14 +334,17 @@ class wxSidViewer(wx.Frame):
                                    wildcard = 'Supported filetypes (*.csv) |*.csv',
                                    style = wx.OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
 
-       if filedialog.ShowModal() == wx.ID_OK:         
-            filelist = ""
-            for u_filename in filedialog.GetFilenames():
-                filelist = str(filelist + "../Data/" + str(u_filename) + ",")
-            filelist = filelist.rstrip(',') # remove last comma
-       
-       self.controller.qdc.load_pickedfiles(filelist)
+       if filedialog.ShowModal() == wx.ID_OK:
+            self.controller.qdc.load_pickedfiles(filedialog.GetPaths())
 
-    def on_qdc_save(self):
+    def on_qdc_save(self,event):
       """Saves current qdc data to disk """
 
+      dlg = wx.TextEntryDialog(self,'Filename:','Save QDC')
+      fstr = 'q' + self.controller.logger.sid_file.get_supersid_filename()
+      dlg.SetValue(fstr)
+
+      if dlg.ShowModal() == wx.ID_OK:       
+            #print('Saving: %s\n' % dlg.GetValue())
+            self.controller.qdc.write_qdc(dlg.GetValue())
+      dlg.Destroy()
