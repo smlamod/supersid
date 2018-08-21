@@ -90,7 +90,15 @@ class Config(dict):
                                     ('audio_sampling_rate', int, None),
                                     ('log_interval', int, None), 
                                     ('number_of_stations', int, None),
-                                    ('scaling_factor', float, None)
+                                    ('scaling_factor', float, None),
+                                    ),                   
+
+                'Miscellaneous' :  (
+                                    ('data_path2', str, ""),
+                                    ('qdc_n_days', int, 3),
+                                    ('qdc_valid_days', int, 30),
+                                    ('k_distance', float, None),         # k: k-distance from the standard deviation
+                                    ('window',int, None),                # window: size of slice to analyze
                                     ),
 
                       "Capture":   (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server

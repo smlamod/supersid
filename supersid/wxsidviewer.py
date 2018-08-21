@@ -86,27 +86,27 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_plot, plot_menu)
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
+
         self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
         self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
+        
 
         # Frame 
-        frameSizer = wx.BoxSizer(wx.VERTICAL)
+        topSizer = wx.BoxSizer(wx.VERTICAL)
+        ctlSizer = wx.BoxSizer(wx.VERTICAL)
         
-        #frameSizer.SetSizer(frameSizer)
-     
+        ct1Sizer = wx.BoxSizer(wx.HORIZONTAL)
+        auiSizer = wx.BoxSizer(wx.VERTICAL)
+            
                
         # @a Combobox for Station Selection
         self.label = wx.StaticText(self, label="Realtime at Station:") #, style=wx.ALIGN_CENTER)
-        frameSizer.Add(self.label, 0, wx.ALL, 5)
         selection = self.controller.logger.sid_file.stations
+
         self.combobox = wx.ComboBox(self, choices=selection, style=wx.CB_READONLY)
-        self.combobox.Selection = 0
-        frameSizer.Add(self.combobox, 0, wx.ALL, 5)
+        self.combobox.Selection = 0 
+        self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo) 
 
-        #frameSizer.AddStretchSpacer()
-        self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo)
-
-        
         # @a auinotebook 012518       
         nbstyle = Aui.AUI_NB_DEFAULT_STYLE
         nbstyle &= ~(Aui.AUI_NB_CLOSE_ON_ACTIVE_TAB)
@@ -120,10 +120,6 @@ class wxSidViewer(wx.Frame):
         psd_sizer = wx.BoxSizer(wx.VERTICAL)
         tab_psd_panel.SetSizer(psd_sizer) 
 
-        # @a for debugging purposes
-        #statictext = wx.StaticText(tab_psd_panel, label="This tab shows the psd graph")
-        #psd_sizer.Add(statictext, 0, wx.ALL, 5)
-
         # @a Second Page
         tab_Rtsid = wx.Panel(auiNotebook)
         tab_Rtsid.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INFOBK))
@@ -131,9 +127,19 @@ class wxSidViewer(wx.Frame):
         rtsid_sizer = wx.BoxSizer(wx.VERTICAL)
         tab_Rtsid.SetSizer(rtsid_sizer)
 
-        # @a Add the notebook in frameSizer      
-        frameSizer.Add(auiNotebook, 1, wx.EXPAND | wx.ALL, 5)
-        self.SetSizer(frameSizer)
+        #S add appropriate controls to their BoxSizers
+        ct1Sizer.Add(self.label, 0, wx.ALL, 5)
+        ct1Sizer.Add(self.combobox, 0, wx.ALL, 5) 
+
+        ctlSizer.Add(ct1Sizer,  0, wx.ALL|wx.EXPAND, 5)        
+        auiSizer.Add(auiNotebook, 1, wx.LEFT | wx.TOP | wx.GROW)
+
+        topSizer.Add(ctlSizer, 0, wx.ALL|wx.EXPAND, 5)
+        topSizer.Add(auiSizer, 1, wx.ALL|wx.EXPAND, 5)
+
+
+        self.SetSizer(topSizer)
+        self.Fit()
         self.Layout()
         self.Centre(wx.BOTH)
         
@@ -144,8 +150,7 @@ class wxSidViewer(wx.Frame):
         self.canvas.mpl_connect('button_press_event', self.on_click) # MPL call back
         psd_sizer.Add(self.canvas, 1, wx.EXPAND)       
         self.axes = psd_figure.add_subplot(111)
-        self.axes.hold(False)
-        #self.axes.axvline(x=19800)        
+        self.axes.hold(False)        
         
         ## FigureCanvas for RealTime SID page
         rtsid_figure = Figure(facecolor='beige')
@@ -160,7 +165,7 @@ class wxSidViewer(wx.Frame):
         self.status_bar.SetFieldsCount(2)
         
         # Default View
-        self.SetMinSize((600,600))
+        self.SetMinSize((1280,720))
         psd_sizer.SetItemMinSize(tab_psd_panel,1000,600)
         self.Center(True)
         self.Show()
@@ -193,15 +198,25 @@ class wxSidViewer(wx.Frame):
         params = self.controller.logger.sid_file
         select = self.combobox.GetSelection()
         qparams = self.controller.qdc
+        dparams = self.controller.detect
+
+        pltargs = []
+        self.axes2.cla()
         
-        #Quiet Day Curve
-        if qparams.is_ok :
-            #If QDC is calculated
-            self.axes2.plot(params.timestamp,qparams.qdcData[select],params.timestamp,params.data[select],linestyle='-',marker='None') 
-        else:
-            #else show realtime only
-            self.axes2.plot(params.timestamp,params.data[select],linestyle='-',marker='None') 
+        #If QDC is calculated        
+        if qparams.is_ok :            
+            pltargs += [params.timestamp,qparams.qdcData[select],'k'] 
         
+        #show realtime
+        pltargs += [params.timestamp,params.data[select],'g'] 
+        #show limits
+        pltargs += [params.timestamp,dparams.uplimit[select], 'm']
+        pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
+        pltargs += [params.timestamp,dparams.breach[select], 'ro']
+        
+        self.axes2.plot(*pltargs)
+
+        self.axes2.hold(True)
         self.axes2.grid(b=True)
         self.axes2.set_xlabel("UTC Time")
         self.axes2.set_ylabel("Relative Strength")
@@ -251,32 +266,9 @@ class wxSidViewer(wx.Frame):
                                    wildcard = 'Supported filetypes (*.csv) |*.csv',
                                    style = wx.FD_OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
 
-        if filedialog.ShowModal() == wx.ID_OK:         
-            #filelist = ""
-            #for u_filename in filedialog.GetFilenames():
-            #    filelist = str(filelist + "../Data/" + str(u_filename) + ",")
-            #filelist = filelist.rstrip(',') # remove last comma
-
+        if filedialog.ShowModal() == wx.ID_OK: 
             ssp = SSP.SUPERSID_PLOT()
-            #ssp.plot_filelist(filelist)
             ssp.plot_filelist(filedialog.GetPaths())
-
-    def on_plot_files(self, event):
-        """Select multiple files and call the supersid_plot module for display"""
-        filedialog = wx.FileDialog(self, message = 'Choose files to plot',
-                                   defaultDir = self.controller.config.data_path,
-                                   defaultFile = '',
-                                   wildcard = 'Supported filetypes (*.csv) |*.csv',
-                                   style = wx.OPEN | wx.FD_MULTIPLE) #A wx.OPEN lang before
-
-        if filedialog.ShowModal() == wx.ID_OK:         
-            filelist = ""
-            for u_filename in filedialog.GetFilenames():
-                filelist = str(filelist + "../Data/" + str(u_filename) + ",")
-            filelist = filelist.rstrip(',') # remove last comma
-
-            ssp = SSP.SUPERSID_PLOT()
-            ssp.plot_filelist(filelist)
         
     def on_save_buffers(self, event):
         """Call the Controller for writing unfiltered/raw data to file"""
@@ -349,10 +341,13 @@ class wxSidViewer(wx.Frame):
       fstr = 'q' + self.controller.logger.sid_file.get_supersid_filename()
       dlg.SetValue(fstr)
 
-      if dlg.ShowModal() == wx.ID_OK:       
-            #print('Saving: %s\n' % dlg.GetValue())
-            self.controller.qdc.write_qdc(dlg.GetValue())
-            wx.MessageBox("QDC saved\n %s" % dlg.GetValue(),                 
-                      caption = 'supersid',
-                      style = wx.OK | wx.ICON_INFORMATION)
+      if dlg.ShowModal() == wx.ID_OK:
+            if (self.controller.qdc.write_qdc(dlg.GetValue()) == True):
+                wx.MessageBox("QDC saved\n %s" % dlg.GetValue(),                 
+                        caption = 'supersid',
+                        style = wx.OK | wx.ICON_INFORMATION)
+            else:
+                wx.MessageBox("Error Saving",                 
+                        caption = 'supersid',
+                        style = wx.OK | wx.ICON_ERROR)
       dlg.Destroy()

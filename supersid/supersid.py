@@ -30,6 +30,7 @@ from logger import Logger
 from datetime import datetime
 
 from qdc import Qdc
+from siddetect import Detect
 
     # @s SuperSid() is startup class
     # Config Class is used to Parse the cfg file
@@ -71,7 +72,7 @@ class SuperSID():
 
         #S Calculate Quiet Day curves - Will read applicable files to be averaged
         self.qdc = Qdc(self)
-
+        self.detect = Detect(self)
 
         # Create the viewer based on the .cfg specification (or set default):
         # Note: the list of Viewers can be extended provided they implement the same interface
@@ -163,8 +164,16 @@ class SuperSID():
                         self.save_current_buffers(log_type=self.config['log_type'], log_format=log_format)
                     self.clear_all_data_buffers()
 
+                    #S save todays data as yesterday
+                    self.qdc.yesterday = self.logger.sid_file.data
                     #S calculate new qdc curve
                     self.qdc.load_files()
+                    #S initialize limits
+                    self.detect.limit_alloc()
+            
+            #S save latest buffer to detect window
+            self.detect.window_append(signal_strengths)            
+            self.detect.compute_limits(current_index)
 
             # Save signal strengths into memory buffers ; prepare message for status bar
             message = self.timer.get_utc_now() + "  [%d]  " % current_index
