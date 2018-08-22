@@ -210,9 +210,9 @@ class wxSidViewer(wx.Frame):
         #show realtime
         pltargs += [params.timestamp,params.data[select],'g'] 
         #show limits
-        pltargs += [params.timestamp,dparams.uplimit[select], 'm']
-        pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
-        pltargs += [params.timestamp,dparams.breach[select], 'rX']
+        #pltargs += [params.timestamp,dparams.uplimit[select], 'm']
+        #pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
+        #pltargs += [params.timestamp,dparams.breach[select], 'rx']
         
         self.axes2.plot(*pltargs)
 
