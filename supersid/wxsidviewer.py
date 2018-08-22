@@ -100,7 +100,7 @@ class wxSidViewer(wx.Frame):
             
                
         # @a Combobox for Station Selection
-        self.label = wx.StaticText(self, label="Realtime at Station:") #, style=wx.ALIGN_CENTER)
+        self.label = wx.StaticText(self, label="Station:") #, style=wx.ALIGN_CENTER)
         selection = self.controller.logger.sid_file.stations
 
         self.combobox = wx.ComboBox(self, choices=selection, style=wx.CB_READONLY)
