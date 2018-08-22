@@ -71,7 +71,7 @@ class SuperSID():
 
 
         #S Calculate Quiet Day curves - Will read applicable files to be averaged
-        self.qdc = Qdc(self)
+        #self.qdc = Qdc(self)
         self.detect = Detect(self)
 
         # Create the viewer based on the .cfg specification (or set default):
@@ -165,9 +165,9 @@ class SuperSID():
                     self.clear_all_data_buffers()
 
                     #S save todays data as yesterday
-                    self.qdc.yesterday = self.logger.sid_file.data
+                    #self.qdc.yesterday = self.logger.sid_file.data
                     #S calculate new qdc curve
-                    self.qdc.load_files()
+                    #self.qdc.load_files()
                     #S initialize limits
                     self.detect.limit_alloc()
             

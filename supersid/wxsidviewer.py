@@ -64,9 +64,9 @@ class wxSidViewer(wx.Frame):
         save_filtered_menu = menu_item_file.Append(wx.NewId(),'&Save Filtered Buffers\tCtrl+F', 'Save Filtered Buffers')
         exit_menu = menu_item_file.Append(wx.NewId(), '&Quit\tCtrl+Q', 'Quit Super SID')
 
-        menu_item_qdc = wx.Menu()
-        qdc_menu = menu_item_qdc.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
-        qdc_save_menu = menu_item_qdc.Append(wx.NewId(), '&Save QDC', 'Save QDC file') 
+        #menu_item_qdc = wx.Menu()
+        #qdc_menu = menu_item_qdc.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
+        #qdc_save_menu = menu_item_qdc.Append(wx.NewId(), '&Save QDC', 'Save QDC file') 
 
         menu_item_plot = wx.Menu()
         plot_menu = menu_item_plot.Append(wx.NewId(), '&Plot\tCtrl+P', 'Plot data')
@@ -78,7 +78,7 @@ class wxSidViewer(wx.Frame):
         menubar.Append(menu_item_file, '&File')
         menubar.Append(menu_item_plot, '&Plot')
         menubar.Append(menu_item_help, '&Help')
-        menubar.Append(menu_item_qdc, '&QDC')
+        #menubar.Append(menu_item_qdc, '&QDC')
         
         self.SetMenuBar(menubar)
         self.Bind(wx.EVT_MENU, self.on_save_buffers, save_buffers_menu)
@@ -87,8 +87,8 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
 
-        self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
-        self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
+        #self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
+        #self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
         
 
         # Frame 
@@ -197,15 +197,15 @@ class wxSidViewer(wx.Frame):
     def canvasDraw(self):
         params = self.controller.logger.sid_file
         select = self.combobox.GetSelection()
-        qparams = self.controller.qdc
+        #qparams = self.controller.qdc
         dparams = self.controller.detect
 
         pltargs = []
         self.axes2.cla()
         
         #If QDC is calculated        
-        if qparams.is_ok :            
-            pltargs += [params.timestamp,qparams.qdcData[select],'k'] 
+        #if qparams.is_ok :            
+        #    pltargs += [params.timestamp,qparams.qdcData[select],'k'] 
         
         #show realtime
         pltargs += [params.timestamp,params.data[select],'g'] 
