@@ -165,7 +165,7 @@ class wxSidViewer(wx.Frame):
         self.status_bar.SetFieldsCount(2)
         
         # Default View
-        self.SetMinSize((800,600))
+        self.SetMinSize((1000,600))
         psd_sizer.SetItemMinSize(tab_psd_panel,1000,600)
         self.Center(True)
         self.Show()
@@ -210,9 +210,9 @@ class wxSidViewer(wx.Frame):
         #show realtime
         pltargs += [params.timestamp,params.data[select],'g'] 
         #show limits
-        #pltargs += [params.timestamp,dparams.uplimit[select], 'm']
-        #pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
-        #pltargs += [params.timestamp,dparams.breach[select], 'rx']
+        pltargs += [params.timestamp,dparams.uplimit[select], 'm']
+        pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
+        pltargs += [params.timestamp,dparams.breach[select], 'rx']
         
         self.axes2.plot(*pltargs)
 

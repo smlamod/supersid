@@ -84,7 +84,7 @@ class Detect():
         self.minibreach = []        
         for stations in self.sid_file.stations:         
             self.minibreach.append([])
-            self.breach.append(((24*3600)/self.sid_file.LogInterval)*[0.0])
+            self.breach.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
             self.uplimit.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
             self.dnlimit.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
 
