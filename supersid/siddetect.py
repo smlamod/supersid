@@ -81,7 +81,8 @@ class Detect():
         """ Rest limits and breach log, invokesd at new day """
         self.uplimit = []
         self.dnlimit = []
-        self.minibreach = []        
+        self.minibreach = [] 
+        self.breach = []
         for stations in self.sid_file.stations:         
             self.minibreach.append([])
             self.breach.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])

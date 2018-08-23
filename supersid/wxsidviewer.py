@@ -107,6 +107,14 @@ class wxSidViewer(wx.Frame):
         self.combobox.Selection = 0 
         self.combobox.Bind(wx.EVT_COMBOBOX, self.OnCombo) 
 
+        #S check box
+        self.cb1 = wx.CheckBox(self, label="Signal") 
+        self.cb2 = wx.CheckBox(self, label="UCL")
+        self.cb3 = wx.CheckBox(self, label="LCL")
+        self.cb4 = wx.CheckBox(self, label="HIT")
+
+        self.Bind(wx.EVT_CHECKBOX,self.onChecked)
+
         # @a auinotebook 012518       
         nbstyle = Aui.AUI_NB_DEFAULT_STYLE
         nbstyle &= ~(Aui.AUI_NB_CLOSE_ON_ACTIVE_TAB)
@@ -130,13 +138,17 @@ class wxSidViewer(wx.Frame):
         #S add appropriate controls to their BoxSizers
         ct1Sizer.Add(self.label, 0, wx.ALL, 5)
         ct1Sizer.Add(self.combobox, 0, wx.ALL, 5) 
+        ct1Sizer.Add(self.cb1, 0, wx.ALL, 5) 
+        ct1Sizer.Add(self.cb2, 0, wx.ALL, 5)
+        ct1Sizer.Add(self.cb3, 0, wx.ALL, 5)
+        ct1Sizer.Add(self.cb4, 0, wx.ALL, 5)
+
 
         ctlSizer.Add(ct1Sizer,  0, wx.ALL|wx.EXPAND, 5)        
         auiSizer.Add(auiNotebook, 1, wx.LEFT | wx.TOP | wx.GROW)
 
         topSizer.Add(ctlSizer, 0, wx.ALL|wx.EXPAND, 5)
         topSizer.Add(auiSizer, 1, wx.ALL|wx.EXPAND, 5)
-
 
         self.SetSizer(topSizer)
         self.Fit()
@@ -173,6 +185,8 @@ class wxSidViewer(wx.Frame):
         # create a pubsub receiver for refresh after data capture / ref. link on threads
         Publisher.subscribe(self.updateDisplay, 'Update')
 
+        self.pltargs = []
+
     
     def OnCombo(self,event):
         #A happens when a station is selected
@@ -194,27 +208,35 @@ class wxSidViewer(wx.Frame):
         except:
             pass
 
-    def canvasDraw(self):
-        params = self.controller.logger.sid_file
+    def onChecked(self,event):
+        self.pltargs = []
         select = self.combobox.GetSelection()
-        #qparams = self.controller.qdc
         dparams = self.controller.detect
-
-        pltargs = []
-        self.axes2.cla()
+        params = self.controller.logger.sid_file 
         
+        #show realtime
+        if self.cb1.IsChecked():
+            self.pltargs += [params.timestamp,params.data[select],'g'] 
+        #show limits
+        if self.cb2.IsChecked():
+            self.pltargs += [params.timestamp,dparams.uplimit[select], 'm']
+        if self.cb3.IsChecked():
+            self.pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
+        if self.cb4.IsChecked():
+            self.pltargs += [params.timestamp,dparams.breach[select], 'rx']
+
+
+    def canvasDraw(self):
+        params = self.controller.logger.sid_file     
+        select = self.combobox.GetSelection()        
+        
+        self.axes2.cla()        
+        #qparams = self.controller.qdc
         #If QDC is calculated        
         #if qparams.is_ok :            
         #    pltargs += [params.timestamp,qparams.qdcData[select],'k'] 
-        
-        #show realtime
-        pltargs += [params.timestamp,params.data[select],'g'] 
-        #show limits
-        pltargs += [params.timestamp,dparams.uplimit[select], 'm']
-        pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
-        pltargs += [params.timestamp,dparams.breach[select], 'rx']
-        
-        self.axes2.plot(*pltargs)
+                
+        self.axes2.plot(*self.pltargs)
 
         self.axes2.hold(True)
         self.axes2.grid(b=True)
