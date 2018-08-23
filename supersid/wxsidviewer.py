@@ -112,6 +112,7 @@ class wxSidViewer(wx.Frame):
         self.cb2 = wx.CheckBox(self, label="UCL")
         self.cb3 = wx.CheckBox(self, label="LCL")
         self.cb4 = wx.CheckBox(self, label="HIT")
+        #self.cb1.SetValue(True)
 
         self.Bind(wx.EVT_CHECKBOX,self.onChecked)
 
@@ -191,6 +192,7 @@ class wxSidViewer(wx.Frame):
     def OnCombo(self,event):
         #A happens when a station is selected
         # self.label.SetLabel("You selected "+self.combobox.GetValue()+" from Combobox") 
+        self.onChecked(event)
         self.canvasDraw()
 
     def run(self):
@@ -224,6 +226,8 @@ class wxSidViewer(wx.Frame):
             self.pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
         if self.cb4.IsChecked():
             self.pltargs += [params.timestamp,dparams.breach[select], 'rx']
+
+        self.canvasDraw()
 
 
     def canvasDraw(self):
