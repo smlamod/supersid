@@ -170,6 +170,7 @@ class SuperSID():
                     #self.qdc.load_files()
                     #S initialize limits
                     self.detect.limit_alloc()
+                    self.viewer.axes2.cla()
             
             #S save latest buffer to detect window
             self.detect.window_append(signal_strengths)            

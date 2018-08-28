@@ -112,7 +112,7 @@ class wxSidViewer(wx.Frame):
         self.cb2 = wx.CheckBox(self, label="UCL")
         self.cb3 = wx.CheckBox(self, label="LCL")
         self.cb4 = wx.CheckBox(self, label="HIT")
-        #self.cb1.SetValue(True)
+        self.cb1.SetValue(True)
 
         self.Bind(wx.EVT_CHECKBOX,self.onChecked)
 
@@ -187,6 +187,9 @@ class wxSidViewer(wx.Frame):
         Publisher.subscribe(self.updateDisplay, 'Update')
 
         self.pltargs = []
+        self.dparams = self.controller.detect
+        self.params = self.controller.logger.sid_file 
+        self.pltargs += [self.params.timestamp,self.params.data[self.combobox.GetSelection()],'g'] 
 
     
     def OnCombo(self,event):
@@ -213,33 +216,26 @@ class wxSidViewer(wx.Frame):
     def onChecked(self,event):
         self.pltargs = []
         select = self.combobox.GetSelection()
-        dparams = self.controller.detect
-        params = self.controller.logger.sid_file 
         
         #show realtime
         if self.cb1.IsChecked():
-            self.pltargs += [params.timestamp,params.data[select],'g'] 
+            self.pltargs += [self.params.timestamp,self.params.data[select],'g'] 
         #show limits
         if self.cb2.IsChecked():
-            self.pltargs += [params.timestamp,dparams.uplimit[select], 'm']
+            self.pltargs += [self.params.timestamp,self.dparams.uplimit[select], 'm']
         if self.cb3.IsChecked():
-            self.pltargs += [params.timestamp,dparams.dnlimit[select], 'm']
+            self.pltargs += [self.params.timestamp,self.dparams.dnlimit[select], 'm']
         if self.cb4.IsChecked():
-            self.pltargs += [params.timestamp,dparams.breach[select], 'rx']
+            self.pltargs += [self.params.timestamp,self.dparams.breach[select], 'rx']
 
         self.canvasDraw()
 
 
     def canvasDraw(self):
-        params = self.controller.logger.sid_file     
+         
         select = self.combobox.GetSelection()        
         
-        self.axes2.cla()        
-        #qparams = self.controller.qdc
-        #If QDC is calculated        
-        #if qparams.is_ok :            
-        #    pltargs += [params.timestamp,qparams.qdcData[select],'k'] 
-                
+        self.axes2.cla()                     
         self.axes2.plot(*self.pltargs)
 
         self.axes2.hold(True)
@@ -249,7 +245,7 @@ class wxSidViewer(wx.Frame):
         self.canvas2.draw()            
           
         #Psd Graph
-        self.axes.axvline(params.frequencies[select],color='r',linewidth=1)
+        self.axes.axvline(self.params.frequencies[select],color='r',linewidth=1)
         self.canvas.draw()
         
 

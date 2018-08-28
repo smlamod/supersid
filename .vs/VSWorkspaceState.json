@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\supersid"
+    "\\supersid",
+    "\\supersid\\__pycache__"
   ],
-  "SelectedNode": "\\supersid\\supersid.py",
+  "SelectedNode": "\\supersid\\siddetect.py",
   "PreviewInSolutionExplorer": false
 }

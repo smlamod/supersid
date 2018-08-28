@@ -84,10 +84,15 @@ class Detect():
         self.minibreach = [] 
         self.breach = []
         for stations in self.sid_file.stations:         
-            self.minibreach.append([])
-            self.breach.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
-            self.uplimit.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
-            self.dnlimit.append(((24*3600)/self.sid_file.LogInterval)*[numpy.nan])
+            tmp = ((24*3600)/self.sid_file.LogInterval)*[numpy.nan]
+            tmp[0] = 0
+            tmp[-1] = 0
+            
+            self.minibreach.append([])      
+            self.breach.append(list(tmp))
+            self.uplimit.append(list(tmp))
+            self.dnlimit.append(list(tmp))
+        
 
     def write_breach(self,filename):
         """ Writes detected anomalies to disk """
