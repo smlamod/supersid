@@ -16,6 +16,7 @@ use from wx.lib.pubsub import setuparg1
 from __future__ import print_function
 
 import matplotlib
+matplotlib.rcParams.update({'font.size': 14})
 matplotlib.use('WXAgg') # select back-end before pylab
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -190,6 +191,9 @@ class wxSidViewer(wx.Frame):
         self.dparams = self.controller.detect
         self.params = self.controller.logger.sid_file 
         self.pltargs += [self.params.timestamp,self.params.data[self.combobox.GetSelection()],'g'] 
+        self.axes2.ticklabel_format(style='sci',axis='y')
+        self.axes.ticklabel_format(style='sci',axis='y')
+
 
     
     def OnCombo(self,event):
@@ -242,6 +246,8 @@ class wxSidViewer(wx.Frame):
         self.axes2.grid(b=True)
         self.axes2.set_xlabel("UTC Time")
         self.axes2.set_ylabel("Relative Strength")
+        self.axes2.ticklabel_format(style='sci',axis='y')
+        self.axes.ticklabel_format(style='sci',axis='y')
         self.canvas2.draw()            
           
         #Psd Graph
