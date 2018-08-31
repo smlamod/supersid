@@ -29,7 +29,7 @@ FILTERED, RAW = 'filtered', 'raw'
 CALL_SIGN, FREQUENCY, COLOR = 'call_sign', 'frequency', 'color'
 # constant for log_format
 SID_FORMAT, SUPERSID_FORMAT = 'sid_format', 'supersid_format'
-SUPERSID_EXTENDED, BOTH_EXTENDED = 'supersid_extended', 'both_extended' # with 5 decimals timestamp
+SUPERSID_EXTENDED, BOTH, BOTH_EXTENDED = 'supersid_extended', 'both', 'both_extended' # with 5 decimals timestamp
 
 # @s The config class utilizes the configparser library to parse contents of the config file
 
@@ -230,9 +230,9 @@ class Config(dict):
         
         # check log_format
         self['log_format'] = self['log_format'].lower()
-        if self['log_format'] not in (SID_FORMAT,SUPERSID_FORMAT, SUPERSID_EXTENDED, BOTH_EXTENDED):
+        if self['log_format'] not in (SID_FORMAT,SUPERSID_FORMAT, SUPERSID_EXTENDED, BOTH, BOTH_EXTENDED):
             self.config_ok = False
-            self.config_err = "'log_format' must be either 'sid_format' or 'supersid_format'/'supersid_extended'."
+            self.config_err = "'log_format' must be either 'sid_format' or 'supersid_format'/'supersid_extended' or 'both'/'both_extended'."
             return     
 
         # Check the 'data_path' validity and create it as a Config instance property

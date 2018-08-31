@@ -41,13 +41,13 @@ class Logger():
             self.controller.isSuperSID = False
             self.config["stationid"] = self.config.stations[0][CALL_SIGN]
             self.config["frequency"] = self.config.stations[0][FREQUENCY]
-            self.config['log_format'] = SID_FORMAT
+            #self.config['log_format'] = SID_FORMAT
         elif len(self.config.stations) > 1:
             # more than one station to monitor, let's default to SuperSId file format
             self.controller.isSuperSID = True
             self.config["stations"] = ",".join([s[CALL_SIGN] for s in self.config.stations])
             self.config["frequencies"] = ",".join([s[FREQUENCY] for s in self.config.stations])
-            self.config['log_format'] = SUPERSID_FORMAT
+            #self.config['log_format'] = SUPERSID_FORMAT
         else:
             print("Error: no station to log???")
             exit(5)

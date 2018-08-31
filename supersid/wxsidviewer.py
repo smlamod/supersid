@@ -26,6 +26,7 @@ import matplotlib.dates as mdates
 from wx.lib.pubsub import setuparg1
 from wx.lib.pubsub import pub as Publisher
 from matplotlib.ticker import FuncFormatter as ff
+import matplotlib.dates as mdates
 
 
 import supersid_plot as SSP
@@ -65,9 +66,9 @@ class wxSidViewer(wx.Frame):
         save_filtered_menu = menu_item_file.Append(wx.NewId(),'&Save Filtered Buffers\tCtrl+F', 'Save Filtered Buffers')
         exit_menu = menu_item_file.Append(wx.NewId(), '&Quit\tCtrl+Q', 'Quit Super SID')
 
-        #menu_item_qdc = wx.Menu()
-        #qdc_menu = menu_item_qdc.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
-        #qdc_save_menu = menu_item_qdc.Append(wx.NewId(), '&Save QDC', 'Save QDC file') 
+        menu_item_qdc = wx.Menu()
+        qdc_menu = menu_item_qdc.Append(wx.NewId(), '&Create QDC', 'Create QDC file') # @a
+        qdc_save_menu = menu_item_qdc.Append(wx.NewId(), '&Save QDC', 'Save QDC file') 
 
         menu_item_plot = wx.Menu()
         plot_menu = menu_item_plot.Append(wx.NewId(), '&Plot\tCtrl+P', 'Plot data')
@@ -79,7 +80,7 @@ class wxSidViewer(wx.Frame):
         menubar.Append(menu_item_file, '&File')
         menubar.Append(menu_item_plot, '&Plot')
         menubar.Append(menu_item_help, '&Help')
-        #menubar.Append(menu_item_qdc, '&QDC')
+        menubar.Append(menu_item_qdc, '&QDC')
         
         self.SetMenuBar(menubar)
         self.Bind(wx.EVT_MENU, self.on_save_buffers, save_buffers_menu)
@@ -88,8 +89,8 @@ class wxSidViewer(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_about, about_menu)
         self.Bind(wx.EVT_MENU, self.on_exit, exit_menu)
 
-        #self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
-        #self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
+        self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
+        self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
         
 
         # Frame 
@@ -113,6 +114,7 @@ class wxSidViewer(wx.Frame):
         self.cb2 = wx.CheckBox(self, label="UCL")
         self.cb3 = wx.CheckBox(self, label="LCL")
         self.cb4 = wx.CheckBox(self, label="HIT")
+        self.cb5 = wx.CheckBox(self, label="QDC")
         self.cb1.SetValue(True)
 
         self.Bind(wx.EVT_CHECKBOX,self.onChecked)
@@ -144,6 +146,7 @@ class wxSidViewer(wx.Frame):
         ct1Sizer.Add(self.cb2, 0, wx.ALL, 5)
         ct1Sizer.Add(self.cb3, 0, wx.ALL, 5)
         ct1Sizer.Add(self.cb4, 0, wx.ALL, 5)
+        ct1Sizer.Add(self.cb5, 0, wx.ALL, 5)
 
 
         ctlSizer.Add(ct1Sizer,  0, wx.ALL|wx.EXPAND, 5)        
@@ -189,16 +192,15 @@ class wxSidViewer(wx.Frame):
 
         self.pltargs = []
         self.dparams = self.controller.detect
+        self.qparams = self.controller.qdc
         self.params = self.controller.logger.sid_file 
         self.pltargs += [self.params.timestamp,self.params.data[self.combobox.GetSelection()],'g'] 
-        self.axes2.ticklabel_format(style='sci',axis='y')
-        self.axes.ticklabel_format(style='sci',axis='y')
-
+        
 
     
     def OnCombo(self,event):
-        #A happens when a station is selected
-        # self.label.SetLabel("You selected "+self.combobox.GetValue()+" from Combobox") 
+        """ A happens when a station is selected """
+
         self.onChecked(event)
         self.canvasDraw()
 
@@ -219,11 +221,13 @@ class wxSidViewer(wx.Frame):
 
     def onChecked(self,event):
         self.pltargs = []
-        select = self.combobox.GetSelection()
-        
+        select = self.combobox.GetSelection()        
         #show realtime
         if self.cb1.IsChecked():
             self.pltargs += [self.params.timestamp,self.params.data[select],'g'] 
+        #show qdc
+        if self.qparams.is_ok and self.cb5.IsChecked():            
+            self.pltargs += [self.params.timestamp,self.qparams.qdcData[select],'k'] 
         #show limits
         if self.cb2.IsChecked():
             self.pltargs += [self.params.timestamp,self.dparams.uplimit[select], 'm']
@@ -234,11 +238,9 @@ class wxSidViewer(wx.Frame):
 
         self.canvasDraw()
 
-
     def canvasDraw(self):
          
         select = self.combobox.GetSelection()        
-        
         self.axes2.cla()                     
         self.axes2.plot(*self.pltargs)
 
@@ -246,8 +248,10 @@ class wxSidViewer(wx.Frame):
         self.axes2.grid(b=True)
         self.axes2.set_xlabel("UTC Time")
         self.axes2.set_ylabel("Relative Strength")
-        self.axes2.ticklabel_format(style='sci',axis='y')
-        self.axes.ticklabel_format(style='sci',axis='y')
+        self.axes2.ticklabel_format(style='sci',axis='y', scilimits=(0, 0))
+        self.axes2.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+        self.axes2.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
+
         self.canvas2.draw()            
           
         #Psd Graph
@@ -304,7 +308,7 @@ class wxSidViewer(wx.Frame):
     
     def on_save_filtered(self, event):
         """Call the Controller for writing filtered data to file"""
-        saved_files = self.controller.save_current_buffers(log_type='filtered', log_format='both')
+        saved_files = self.controller.save_current_buffers(log_type='filtered', log_format = self.params.sid_params['log_format'])
         
         
         wx.MessageBox("Files saved\n" + "\n".join(saved_files),                 
