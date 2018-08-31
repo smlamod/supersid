@@ -35,8 +35,11 @@ class Qdc():
         if 'qdc_valid_days' in self.config:
             self._valid_days = int(self.config['qdc_valid_days'])
 
+        if 'data_path' in self.config:
+            self.data_path = self.config['data_path']
+
         if 'data_path2' in self.config:
-            self.data_path = self.config['data_path2']
+            self.data_path2 = self.config['data_path2']
 
     def load_pickedfiles(self, filelist):
         """ Calculates QDC from given file list """
@@ -166,7 +169,7 @@ class Qdc():
     def write_qdc(self,filename):
         """ Writes computed QDC to disk """
         try:
-            filename = self.data_path + filename
+            filename = self.data_path2 + filename
             sys.stdout.write("Saving  %s" % filename,)
             with open(filename,'wt') as fout:
                 print(self.controller.logger.sid_file.create_header(True,'filtered'),file=fout,end="")
