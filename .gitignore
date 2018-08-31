@@ -42,5 +42,6 @@ Data
 /.vs/SuperSid2/v15/.suo
 /docs
 /Config
+*.cfg
 /Config/supersid.cfg
 /aData
