@@ -64,6 +64,7 @@ class wxSidViewer(wx.Frame):
         menu_item_file = wx.Menu()
         save_buffers_menu = menu_item_file.Append(wx.NewId(), '&Save Raw Buffers\tCtrl+B', 'Save Raw Buffers')
         save_filtered_menu = menu_item_file.Append(wx.NewId(),'&Save Filtered Buffers\tCtrl+F', 'Save Filtered Buffers')
+        psd_save_menu = menu_item_file.Append(wx.NewId(), '&Save PSD\tCtrl+D', 'Save PSD')
         exit_menu = menu_item_file.Append(wx.NewId(), '&Quit\tCtrl+Q', 'Quit Super SID')
 
         menu_item_qdc = wx.Menu()
@@ -91,6 +92,7 @@ class wxSidViewer(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.on_qdc,qdc_menu) # @a
         self.Bind(wx.EVT_MENU, self.on_qdc_save, qdc_save_menu) # @s
+        self.Bind(wx.EVT_MENU, self.on_psd_save, psd_save_menu)
         
 
         # Frame 
@@ -379,7 +381,21 @@ class wxSidViewer(wx.Frame):
                         caption = 'supersid',
                         style = wx.OK | wx.ICON_INFORMATION)
             else:
-                wx.MessageBox("Error Saving",                 
+                wx.MessageBox("Error Saving QDC",                 
                         caption = 'supersid',
                         style = wx.OK | wx.ICON_ERROR)
       dlg.Destroy()
+
+    def on_psd_save(self,event):
+        """ Dumps current PSD values """
+        tpsd = self.controller.qdc.write_psd()
+        if (self.controller.qdc.write_psd() != False):
+                wx.MessageBox("PSD saved\n %s" % tpsd,                 
+                        caption = 'supersid',
+                        style = wx.OK | wx.ICON_INFORMATION)
+        else:
+                wx.MessageBox("Error Saving PSD",                 
+                        caption = 'supersid',
+                        style = wx.OK | wx.ICON_ERROR)
+
+

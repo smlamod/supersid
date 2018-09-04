@@ -14,11 +14,13 @@ from time import gmtime, strftime
 from datetime import datetime, timedelta
 import numpy
 import sys
+import itertools
 
 class Qdc():
     def __init__(self, controller, read_file=None):
         self.controller = controller
         self.config = controller.config
+        self.sid_params = self.controller.logger.sid_file.sid_params
         
         self.control_header()
         self.is_ok = False
@@ -150,7 +152,7 @@ class Qdc():
             temp_station = temp_station.split('=',1)[-1]
             #temp_station = temp_station.split(',')
             if temp_station != self.controller.config['stations']:
-                sys.stdout.write ("[\tBAD] inconsistent stations\n")
+                sys.stdout.write ("\t[BAD] inconsistent stations\n")
                 return False         
             else:
                 sys.stdout.write ("\t[OK]\n")
@@ -181,5 +183,22 @@ class Qdc():
                 sys.stdout.write("\t[OK]")
                 return True
         except IOError:
-            sys.stdout.write("[ERROR]")
+            sys.stdout.write("\t[ERROR]")
+            return False
+
+    def write_psd(self):
+        ss = self.controller.Pxx
+        fq = self.controller.freqs
+        try:
+            filename = self.data_path2 + "\\p" + self.sid_params['site_name'] + self.config["utc_starttime"][:10] + "_" + str(self.controller.timer.data_index) + ".csv"
+            with open(filename,'wt') as fout:
+                hdr = "# Site = %s\n" % (self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
+                hdr += "# UTC_Time_Now = %s\n" % self.controller.timer.get_utc_now()
+                hdr += "# Current_Index = %s\n" % self.controller.timer.data_index
+                hdr += "# scaling_factor = %s\n" % self.config['scaling_factor']
+                print(hdr, file=fout, end="")
+                for i in range(len(ss)):
+                    print('{0:.2f}, {1:.15f}'.format(fq[i],ss[i]),file=fout)
+            return filename
+        except IOError:
             return False

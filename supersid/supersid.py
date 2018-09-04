@@ -142,6 +142,10 @@ class SuperSID():
         try:
             data = self.sampler.capture_1sec()  # return a list of 1 second signal strength
             Pxx, freqs = self.psd(data, self.sampler.NFFT, self.sampler.audio_sampling_rate)
+            
+            self.Pxx = Pxx
+            self.freqs = freqs
+
             for binSample in self.sampler.monitored_bins:
                 signal_strengths.append(Pxx[binSample])
         except IndexError as idxerr:
