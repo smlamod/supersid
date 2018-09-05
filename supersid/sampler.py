@@ -217,7 +217,7 @@ class Sampler():
         else:
             #scale A/D raw_data to voltage here (we might substract 5v to make the data look more like SID)
             if(self.scaling_factor != 1.0):
-                self.data *= self.scaling_factor
+                self.data = (self.data * self.scaling_factor)
                 
         return self.data
 
