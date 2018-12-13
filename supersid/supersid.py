@@ -177,10 +177,10 @@ class SuperSID():
                     #S initialize limits
                     self.detect.limit_alloc()
                     self.viewer.axes2.cla()
+                    self.viewer.refreshArgs()
             
-            #S save latest buffer to detect window
-            self.detect.window_append(signal_strengths)            
-            self.detect.compute_limits(current_index)
+            #S save latest buffer to detect window        
+            self.detect.compute_limits(signal_strengths, current_index)
 
             # Save signal strengths into memory buffers ; prepare message for status bar
             message = self.timer.get_utc_now() + "  [%d]  " % current_index

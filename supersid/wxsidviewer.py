@@ -47,7 +47,7 @@ class wxSidViewer(wx.Frame):
         # the application MUST created first
         #S causes the first error
         self.app = wx.App(redirect=False)
-        self.version = "1.3.1 20150421 (wx)"
+        self.version = "1.4 20181213 (wx)"
         self.controller = controller  # previously referred as 'parent'      
         
         # Frame
@@ -221,12 +221,16 @@ class wxSidViewer(wx.Frame):
         except:
             pass
 
-    def onChecked(self,event):
+    def onChecked(self, event):
+        self.refreshArgs()
+        self.canvasDraw()
+
+    def refreshArgs(self):
         self.pltargs = []
         select = self.combobox.GetSelection()        
         #show realtime
         if self.cb1.IsChecked():
-            self.pltargs += [self.params.timestamp,self.params.data[select],'g'] 
+            self.pltargs += [self.params.timestamp,self.params.data[select], 'g'] 
         #show qdc
         if self.qparams.is_ok and self.cb5.IsChecked():            
             self.pltargs += [self.params.timestamp,self.qparams.qdcData[select],'k'] 
@@ -237,8 +241,6 @@ class wxSidViewer(wx.Frame):
             self.pltargs += [self.params.timestamp,self.dparams.dnlimit[select], 'm']
         if self.cb4.IsChecked():
             self.pltargs += [self.params.timestamp,self.dparams.breach[select], 'rx']
-
-        self.canvasDraw()
 
     def canvasDraw(self):
          
@@ -367,6 +369,8 @@ class wxSidViewer(wx.Frame):
 
        if filedialog.ShowModal() == wx.ID_OK:
             self.controller.qdc.load_pickedfiles(filedialog.GetPaths())
+
+       self.refreshArgs()
 
     def on_qdc_save(self,event):
       """Saves current qdc data to disk """

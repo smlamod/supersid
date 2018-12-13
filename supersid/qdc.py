@@ -1,8 +1,9 @@
 """
+Quiet Day Curve - Takes the average of the previous signal logs
 Read files, Get signal strength values, Create qdc file, Average strength values
 
 SML
-20180821
+20181213
 """
 from __future__ import print_function   # use the new Python 3 'print' function
 from os import path
@@ -19,15 +20,19 @@ import itertools
 class Qdc():
     def __init__(self, controller, read_file=None):
         self.controller = controller
+        self.version = "SML 1.0 20181213"
         self.config = controller.config
         self.sid_params = self.controller.logger.sid_file.sid_params
         
         self.control_header()
         self.is_ok = False
         self.timestamp_format = '%Y-%m-%d'
+
+
         self.qdays = []
         self.yesterday = []
-        
+        self.qdcData = []
+
         self.load_files()
         
     def control_header(self):
@@ -163,6 +168,7 @@ class Qdc():
 
     def get_avg(self,inData):
         """ Calculates the nanmean of read supersid file data """
+        self.qdcData = []
         self.qdcData = numpy.nanmean(inData, axis=0)        
         self.is_ok = True
         print("- QDC Loaded")    
@@ -190,7 +196,7 @@ class Qdc():
         ss = self.controller.Pxx
         fq = self.controller.freqs
         try:
-            filename = self.data_path2 + "\\p" + self.sid_params['site_name'] + self.config["utc_starttime"][:10] + "_" + str(self.controller.timer.data_index) + ".csv"
+            filename = self.data_path2 + "p" + self.sid_params['site_name'] + self.config["utc_starttime"][:10] + "_" + str(self.controller.timer.data_index) + ".csv"
             with open(filename,'wt') as fout:
                 hdr = "# Site = %s\n" % (self.sid_params['site_name'] if 'site_name' in self.sid_params else self.sid_params['site'])
                 hdr += "# UTC_Time_Now = %s\n" % self.controller.timer.get_utc_now()

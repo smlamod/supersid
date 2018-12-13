@@ -97,8 +97,9 @@ class Config(dict):
                                     ('data_path2', str, ""),
                                     ('qdc_n_days', int, 3),
                                     ('qdc_valid_days', int, 30),
-                                    ('k_distance', float, None),         # k: k-distance from the standard deviation
-                                    ('window',int, None),                # window: size of slice to analyze
+                                    ('k_distance', float, None),        # k: k-distance from the standard deviation
+                                    ('window',int, None),               # window: size of slice to analyze
+                                    ('alpha', float, 1.0),              # alpha: apply exponential smoothing to signal
                                     ),
 
                       "Capture":   (("Audio", str, 'pyaudio'),          # soundcard: alsaaudio or pyaudio ; server
