@@ -27,6 +27,7 @@ from wx.lib.pubsub import setuparg1
 from wx.lib.pubsub import pub as Publisher
 from matplotlib.ticker import FuncFormatter as ff
 import matplotlib.dates as mdates
+import os
 
 
 import supersid_plot as SSP
@@ -56,7 +57,7 @@ class wxSidViewer(wx.Frame):
 
         # Icon
         try: 
-            self.SetIcon(wx.Icon("./supersid_icon.png", wx.BITMAP_TYPE_PNG))
+            self.SetIcon(wx.Icon(os.getcwd() + "/supersid_icon.png", wx.BITMAP_TYPE_PNG))
         finally:
             pass
 
